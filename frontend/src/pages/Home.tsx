@@ -27,6 +27,7 @@ interface HomeProps {
   riskMapFeatures?: RiskMapFeature[];
   historicalEvents?: HistoricalEventItem[];
   onNavigateToTab?: (tab: 'map' | 'prediction' | 'alerts' | 'analysis' | 'methodology') => void;
+  onOpenSitrep?: () => void;
 }
 
 export const Home: React.FC<HomeProps> = (props) => {

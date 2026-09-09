@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar } from './components/Navbar';
+import { SitrepModal } from './components/SitrepModal';
 import { Home } from './pages/Home';
 import { MapPage } from './pages/Map';
 import { PredictionPage } from './pages/Prediction';
@@ -50,6 +51,7 @@ export const App: React.FC = () => {
   const [modelInfo, setModelInfo] = useState<ModelInfoResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [networkError, setNetworkError] = useState<string | null>(null);
+  const [isSitrepOpen, setIsSitrepOpen] = useState<boolean>(false);
 
   // Load telemetry & run prediction for the active coordinate
   const loadLocationData = useCallback(async (
@@ -208,6 +210,7 @@ export const App: React.FC = () => {
         isDemoMode={isDemoMode}
         setIsDemoMode={setIsDemoMode}
         onSelectDemoLocation={handleSelectDemoLocation}
+        onOpenSitrep={() => setIsSitrepOpen(true)}
       />
 
       {/* Main Page Container */}
@@ -237,6 +240,7 @@ export const App: React.FC = () => {
             riskMapFeatures={riskMapFeatures}
             historicalEvents={historicalEvents}
             onNavigateToTab={(tab) => setActiveTab(tab)}
+            onOpenSitrep={() => setIsSitrepOpen(true)}
           />
         )}
 
@@ -301,6 +305,15 @@ export const App: React.FC = () => {
           </div>
         </div>
       </footer>
+      {/* Official NDRF SITREP Modal */}
+      <SitrepModal
+        isOpen={isSitrepOpen}
+        onClose={() => setIsSitrepOpen(false)}
+        predictionData={predictionData}
+        envData={envData}
+        terrainData={terrainData}
+        selectedLocation={selectedLocation}
+      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShieldAlert, 
   Map, 
@@ -7,7 +7,11 @@ import {
   Sliders, 
   Radio, 
   MapPin, 
-  Info 
+  Clock, 
+  Activity, 
+  FileText,
+  AlertOctagon,
+  Layers
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -16,14 +20,15 @@ interface NavbarProps {
   isDemoMode: boolean;
   setIsDemoMode: (val: boolean) => void;
   onSelectDemoLocation: (loc: string) => void;
+  onOpenSitrep?: () => void;
 }
 
-const DEMO_BUTTONS = [
-  { name: 'Kullu', risk: 'HIGH', color: 'border-orange-500/60 text-orange-400' },
-  { name: 'Shimla', risk: 'MODERATE', color: 'border-amber-500/60 text-amber-400' },
-  { name: 'Mandi', risk: 'CRITICAL', color: 'border-red-500/60 text-red-400' },
-  { name: 'Solan', risk: 'LOW', color: 'border-emerald-500/60 text-emerald-400' },
-  { name: 'Bilaspur', risk: 'LOW', color: 'border-emerald-500/60 text-emerald-400' },
+const REGIONAL_STATIONS = [
+  { name: 'Kullu', code: 'CWC-HP-01', risk: 'HIGH', badge: 'bg-orange-950/80 text-orange-400 border-orange-600/50' },
+  { name: 'Mandi', code: 'CWC-HP-04', risk: 'CRITICAL', badge: 'bg-red-950/80 text-red-400 border-red-600/50' },
+  { name: 'Shimla', code: 'CWC-HP-08', risk: 'MODERATE', badge: 'bg-amber-950/80 text-amber-400 border-amber-600/50' },
+  { name: 'Solan', code: 'CWC-HP-12', risk: 'LOW', badge: 'bg-emerald-950/80 text-emerald-400 border-emerald-600/50' },
+  { name: 'Bilaspur', code: 'CWC-HP-15', risk: 'LOW', badge: 'bg-emerald-950/80 text-emerald-400 border-emerald-600/50' },
 ];
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -32,140 +37,235 @@ export const Navbar: React.FC<NavbarProps> = ({
   isDemoMode,
   setIsDemoMode,
   onSelectDemoLocation,
+  onOpenSitrep,
 }) => {
+  const [currentTime, setCurrentTime] = useState<string>('');
+
+  useEffect(() => {
+    const update = () => {
+      const now = new Date();
+      setCurrentTime(
+        now.toLocaleTimeString('en-IN', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+          timeZone: 'Asia/Kolkata'
+        })
+      );
+    };
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 bg-slate-950/90 border-b border-slate-800/90 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 bg-[#060911]/95 border-b border-slate-800 backdrop-blur-xl">
+      {/* Subtle National Tricolor Accent Bar */}
+      <div className="h-1 w-full flex">
+        <div className="flex-1 bg-[#FF9933]"></div>
+        <div className="flex-1 bg-white"></div>
+        <div className="flex-1 bg-[#138808]"></div>
+      </div>
+
+      {/* Top Operations Header Bar */}
+      <div className="bg-slate-950/80 border-b border-slate-800/80 py-1.5 px-4 text-[11px] font-mono">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-slate-400">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5 text-slate-300 font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              IMD DOPPLER: SHIMLA ACTIVE
+            </span>
+            <span className="hidden md:inline text-slate-600">|</span>
+            <span className="hidden md:inline text-slate-400">
+              CWC TELEMETRY: <strong className="text-cyan-400">48 GAUGES SYNCED</strong>
+            </span>
+            <span className="hidden md:inline text-slate-600">|</span>
+            <span className="hidden lg:inline text-slate-400">
+              CAP BROADCAST PROTOCOL: <strong className="text-emerald-400">ONLINE</strong>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 text-slate-300">
+              <Clock className="w-3.5 h-3.5 text-cyan-400" />
+              <span>IST: <strong className="text-white">{currentTime || 'LIVE'}</strong></span>
+            </div>
+            <span className="text-slate-600">|</span>
+            <span className="text-amber-400 font-bold bg-amber-950/60 border border-amber-800/60 px-2 py-0.5 rounded text-[10px]">
+              DEFENSE & CIVIL SECURITY: MHA / NDRF
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Command Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo & Title */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-              <ShieldAlert className="w-6 h-6 text-white" />
+          {/* Official Emblem & Portal Title */}
+          <div className="flex items-center gap-3.5 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center shadow-lg shadow-black/60 relative">
+              <ShieldAlert className="w-6 h-6 text-cyan-400" />
+              <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-slate-950"></span>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-black text-lg tracking-tight text-white">
-                  FloodGuard<span className="text-cyan-400">AI</span>
+                <span className="font-black text-base sm:text-lg tracking-tight text-white font-sans">
+                  FLOODGUARD <span className="text-cyan-400">COMMAND</span>
                 </span>
-                <span className="text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="text-[9px] font-mono font-bold bg-slate-800 text-cyan-300 border border-slate-700 px-1.5 py-0.5 rounded uppercase">
                   SIH 26192
                 </span>
               </div>
-              <span className="text-[10px] text-slate-400 hidden sm:block">
-                Hyper-Local Multi-Source Flash Flood Early Warning System
+              <span className="text-[10px] text-slate-400 hidden sm:block font-mono tracking-tight">
+                National Multi-Source Flash Flood Early Warning System • NDRF Control Desk
               </span>
             </div>
           </div>
 
-          {/* Navigation Links - 6 Core Pages */}
-          <nav className="hidden lg:flex items-center gap-1">
+          {/* Navigation Links - 6 Core Command Modules */}
+          <nav className="hidden lg:flex items-center gap-1 font-sans">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                 activeTab === 'dashboard'
                   ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
               <ShieldAlert className="w-3.5 h-3.5" />
-              Dashboard
+              Operations Dashboard
             </button>
 
             <button
               onClick={() => setActiveTab('map')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                 activeTab === 'map'
                   ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
               <Map className="w-3.5 h-3.5" />
-              Risk Map
+              GIS Risk Map
             </button>
 
             <button
               onClick={() => setActiveTab('prediction')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                 activeTab === 'prediction'
                   ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
               <Sliders className="w-3.5 h-3.5" />
-              Prediction
+              ML Prediction
             </button>
 
             <button
               onClick={() => setActiveTab('alerts')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                 activeTab === 'alerts'
                   ? 'bg-red-500/15 text-red-300 border border-red-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
-              <Radio className="w-3.5 h-3.5 text-red-400" />
-              Alerts & Warnings
+              <Radio className="w-3.5 h-3.5 text-red-400 animate-pulse" />
+              Alerts & Evacuation
             </button>
 
             <button
               onClick={() => setActiveTab('analysis')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                 activeTab === 'analysis'
                   ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
               <BarChart2 className="w-3.5 h-3.5" />
-              Historical Analysis
+              Hydrological Trends
             </button>
 
             <button
               onClick={() => setActiveTab('methodology')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                 activeTab === 'methodology'
                   ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
               <BookOpen className="w-3.5 h-3.5" />
-              About / Methodology
+              About & Methodology
             </button>
           </nav>
 
-          {/* Mode Switcher & Quick Demo */}
-          <div className="flex items-center gap-3">
+          {/* Action Actions & SITREP Button */}
+          <div className="flex items-center gap-2.5">
+            {onOpenSitrep && (
+              <button
+                onClick={onOpenSitrep}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-mono font-medium transition-all shadow-sm"
+                title="Generate printable official Incident Situation Report"
+              >
+                <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                <span>OFFICIAL SITREP</span>
+              </button>
+            )}
+
             <button
               onClick={() => setIsDemoMode(!isDemoMode)}
-              className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-all flex items-center gap-1.5 ${
+              className={`text-xs font-mono font-bold px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
                 isDemoMode
-                  ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 shadow-cyan-500/20 shadow-sm'
-                  : 'bg-slate-800 border-slate-700 text-slate-400'
+                  ? 'bg-cyan-500/20 border-cyan-500/80 text-cyan-300'
+                  : 'bg-slate-900 border-slate-700 text-slate-400'
               }`}
             >
-              <Radio className="w-3.5 h-3.5" />
-              {isDemoMode ? 'DEMO MODE (Active)' : 'LIVE MODE (APIs)'}
+              <Radio className="w-3 h-3" />
+              <span>{isDemoMode ? 'SANDBOX' : 'LIVE API'}</span>
             </button>
           </div>
         </div>
 
-        {/* Quick Demo Location Buttons Sub-Bar */}
-        <div className="py-2 border-t border-slate-800/60 flex flex-wrap items-center justify-between gap-2 text-xs">
+        {/* Tactical River Basin Gauge Selector Sub-Bar */}
+        <div className="py-2 border-t border-slate-800/60 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
           <div className="flex items-center gap-2 text-slate-400">
-            <MapPin className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="font-semibold text-slate-300">Quick Himachal Presets:</span>
+            <Activity className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="text-[11px] uppercase tracking-wider text-slate-300">CWC Telemetry Monitoring Nodes:</span>
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            {DEMO_BUTTONS.map((btn) => (
+            {REGIONAL_STATIONS.map((station) => (
               <button
-                key={btn.name}
-                onClick={() => onSelectDemoLocation(btn.name)}
-                className={`px-2.5 py-1 rounded-lg bg-slate-900/80 border ${btn.color} hover:bg-slate-800 text-[11px] font-semibold transition-all flex items-center gap-1`}
+                key={station.name}
+                onClick={() => onSelectDemoLocation(station.name)}
+                className={`px-2 py-1 rounded border ${station.badge} hover:brightness-125 text-[11px] transition-all flex items-center gap-1.5`}
               >
-                <span>{btn.name}</span>
-                <span className="text-[9px] opacity-75">({btn.risk})</span>
+                <span className="font-semibold text-slate-200">{station.name}</span>
+                <span className="text-[9px] opacity-75 font-mono">[{station.code}]</span>
+                <span className="text-[9px] font-black">{station.risk}</span>
               </button>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Live Operational Ticker Bar */}
+      <div className="bg-slate-950 border-t border-b border-slate-900 py-1 px-4 ticker-wrap text-[11px] font-mono text-slate-400">
+        <div className="ticker-move flex items-center gap-8">
+          <span className="flex items-center gap-1.5 text-red-400 font-bold">
+            <AlertOctagon className="w-3.5 h-3.5" />
+            CWC FLASH WARNING: Beas River discharge at Bhuntar (2.8m, Danger Mark: 2.8m) — High surge imminent
+          </span>
+          <span className="text-slate-600">■</span>
+          <span className="text-amber-300">
+            SOIL INFILTRATION NOTICE: Suketi Catchment topsoil saturation 78% — Field capacity breached
+          </span>
+          <span className="text-slate-600">■</span>
+          <span className="text-emerald-400">
+            SUTLEJ VALLEY: Sunni & Tatapani gauges reading normal (1.9m) — Advisory watch maintained
+          </span>
+          <span className="text-slate-600">■</span>
+          <span className="text-cyan-300">
+            EMERGENCY DESK: NDRF 14th Bn QRT on standby • DEOC Hotline: 1077 • National Helpline: 112
+          </span>
         </div>
       </div>
     </header>
