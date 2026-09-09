@@ -1,0 +1,273 @@
+{
+  "Kullu": {
+    "location": {
+      "name": "Kullu, Himachal Pradesh",
+      "latitude": 31.9579,
+      "longitude": 77.1095
+    },
+    "prediction": {
+      "flood_probability": 0.87,
+      "flood_probability_percent": 87,
+      "risk_level": "HIGH",
+      "confidence_score": 0.92
+    },
+    "contributing_factors": [
+      {
+        "factor": "Heavy Rainfall (6h Accumulation)",
+        "importance": 0.34,
+        "current_value": 125.4,
+        "unit": "mm",
+        "impact": "HIGH"
+      },
+      {
+        "factor": "High Soil Saturation (0-35cm)",
+        "importance": 0.28,
+        "current_value": 72.0,
+        "unit": "%",
+        "impact": "HIGH"
+      },
+      {
+        "factor": "Steep Slope Gradient",
+        "importance": 0.22,
+        "current_value": 31.0,
+        "unit": "°",
+        "impact": "MODERATE"
+      },
+      {
+        "factor": "Rising River Stage / Water Level",
+        "importance": 0.16,
+        "current_value": 2.8,
+        "unit": "m",
+        "impact": "HIGH"
+      }
+    ],
+    "warning": {
+      "alert_level": "HIGH",
+      "lead_time_minutes": 45,
+      "estimated_peak_time": "2026-09-09T22:30:00Z",
+      "message": "High flood probability detected in Kullu valley catchment. Prepare for immediate evacuation from river banks."
+    },
+    "recommendations": [
+      "Move residents to designated higher-elevation shelter grounds immediately",
+      "Avoid low-lying riverbanks, culverts, and vulnerable suspension bridges along Beas River",
+      "Keep emergency go-kits, torchlights, and VHF/satellite communications active",
+      "Monitor official district disaster management (DDMA) and NDRF radio channels",
+      "Stay strictly away from saturated landslide-prone hill cuttings"
+    ]
+  },
+  "Shimla": {
+    "location": {
+      "name": "Shimla, Himachal Pradesh",
+      "latitude": 31.7724,
+      "longitude": 77.1706
+    },
+    "prediction": {
+      "flood_probability": 0.52,
+      "flood_probability_percent": 52,
+      "risk_level": "MODERATE",
+      "confidence_score": 0.88
+    },
+    "contributing_factors": [
+      {
+        "factor": "Moderate Rainfall (6h Accumulation)",
+        "importance": 0.30,
+        "current_value": 54.2,
+        "unit": "mm",
+        "impact": "MODERATE"
+      },
+      {
+        "factor": "Steep Slope Gradient",
+        "importance": 0.29,
+        "current_value": 28.0,
+        "unit": "°",
+        "impact": "HIGH"
+      },
+      {
+        "factor": "Soil Saturation",
+        "importance": 0.24,
+        "current_value": 58.0,
+        "unit": "%",
+        "impact": "MODERATE"
+      },
+      {
+        "factor": "Local Drainage Convergence",
+        "importance": 0.17,
+        "current_value": 1.4,
+        "unit": "m",
+        "impact": "MODERATE"
+      }
+    ],
+    "warning": {
+      "alert_level": "MODERATE",
+      "lead_time_minutes": 90,
+      "estimated_peak_time": "2026-09-09T23:15:00Z",
+      "message": "Moderate flood and debris runoff warning issued. Keep drainage channels clear."
+    },
+    "recommendations": [
+      "Secure stormwater drains from loose construction debris and fallen trees",
+      "Maintain active vigilance around steep cut slopes and retaining walls",
+      "Avoid night-time transit through vulnerable ridge roads and ghat sections"
+    ]
+  },
+  "Mandi": {
+    "location": {
+      "name": "Mandi, Himachal Pradesh",
+      "latitude": 32.2396,
+      "longitude": 76.9227
+    },
+    "prediction": {
+      "flood_probability": 0.91,
+      "flood_probability_percent": 91,
+      "risk_level": "CRITICAL",
+      "confidence_score": 0.94
+    },
+    "contributing_factors": [
+      {
+        "factor": "Torrential Inundation Rainfall (6h)",
+        "importance": 0.38,
+        "current_value": 182.0,
+        "unit": "mm",
+        "impact": "CRITICAL"
+      },
+      {
+        "factor": "Complete Soil Saturation (0-35cm)",
+        "importance": 0.29,
+        "current_value": 89.0,
+        "unit": "%",
+        "impact": "CRITICAL"
+      },
+      {
+        "factor": "River Stage Above Danger Mark",
+        "importance": 0.20,
+        "current_value": 4.1,
+        "unit": "m",
+        "impact": "CRITICAL"
+      },
+      {
+        "factor": "Steep Hillside Runoff Convergence",
+        "importance": 0.13,
+        "current_value": 22.0,
+        "unit": "°",
+        "impact": "HIGH"
+      }
+    ],
+    "warning": {
+      "alert_level": "CRITICAL",
+      "lead_time_minutes": 25,
+      "estimated_peak_time": "2026-09-09T22:00:00Z",
+      "message": "CRITICAL FLASH FLOOD ALARM! Immediate evacuation mandatory for Mandi low-lying areas."
+    },
+    "recommendations": [
+      "SOUND EMERGENCY SIRENS and execute immediate evacuation of Mandi lower wards",
+      "Deploy NDRF 14th Bn rapid response boats and water rescue equipment",
+      "Shut off power sub-stations in inundation perimeter to prevent electrocution hazards",
+      "Enforce complete prohibition of vehicular movement on submerged highways"
+    ]
+  },
+  "Solan": {
+    "location": {
+      "name": "Solan, Himachal Pradesh",
+      "latitude": 30.9100,
+      "longitude": 77.1633
+    },
+    "prediction": {
+      "flood_probability": 0.28,
+      "flood_probability_percent": 28,
+      "risk_level": "LOW",
+      "confidence_score": 0.91
+    },
+    "contributing_factors": [
+      {
+        "factor": "Light Cumulative Rainfall",
+        "importance": 0.25,
+        "current_value": 12.0,
+        "unit": "mm",
+        "impact": "LOW"
+      },
+      {
+        "factor": "Unsaturated Soil Moisture",
+        "importance": 0.25,
+        "current_value": 38.0,
+        "unit": "%",
+        "impact": "LOW"
+      },
+      {
+        "factor": "Stable River Stage",
+        "importance": 0.25,
+        "current_value": 0.8,
+        "unit": "m",
+        "impact": "LOW"
+      },
+      {
+        "factor": "Moderate Hill Slope",
+        "importance": 0.25,
+        "current_value": 25.0,
+        "unit": "°",
+        "impact": "LOW"
+      }
+    ],
+    "warning": {
+      "alert_level": "LOW",
+      "lead_time_minutes": 180,
+      "estimated_peak_time": "2026-09-10T02:00:00Z",
+      "message": "Normal conditions prevail. Routine hydrometric monitoring active."
+    },
+    "recommendations": [
+      "Continue standard meteorological vigilance",
+      "Ensure local drains and culverts are inspected during pre-monsoon checks"
+    ]
+  },
+  "Bilaspur": {
+    "location": {
+      "name": "Bilaspur, Himachal Pradesh",
+      "latitude": 31.3175,
+      "longitude": 76.7581
+    },
+    "prediction": {
+      "flood_probability": 0.22,
+      "flood_probability_percent": 22,
+      "risk_level": "LOW",
+      "confidence_score": 0.93
+    },
+    "contributing_factors": [
+      {
+        "factor": "Low Rainfall Intensity",
+        "importance": 0.28,
+        "current_value": 8.5,
+        "unit": "mm",
+        "impact": "LOW"
+      },
+      {
+        "factor": "Adequate Reservoir Capacity",
+        "importance": 0.26,
+        "current_value": 1.1,
+        "unit": "m",
+        "impact": "LOW"
+      },
+      {
+        "factor": "Soil Infiltration Capacity High",
+        "importance": 0.24,
+        "current_value": 34.0,
+        "unit": "%",
+        "impact": "LOW"
+      },
+      {
+        "factor": "Gentle Valley Slope",
+        "importance": 0.22,
+        "current_value": 18.0,
+        "unit": "°",
+        "impact": "LOW"
+      }
+    ],
+    "warning": {
+      "alert_level": "LOW",
+      "lead_time_minutes": 240,
+      "estimated_peak_time": "2026-09-10T04:00:00Z",
+      "message": "Low flood probability. Reservoir buffers operating within normal safety margins."
+    },
+    "recommendations": [
+      "Maintain telemetry communications with Bhakra Beas Management Board",
+      "Routine gauge reporting"
+    ]
+  }
+}
