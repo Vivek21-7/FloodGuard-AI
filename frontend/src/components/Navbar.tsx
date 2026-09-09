@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ShieldAlert, 
   Map, 
@@ -6,13 +6,15 @@ import {
   BookOpen, 
   Sliders, 
   Radio, 
-  MapPin, 
   Clock, 
   Activity, 
   FileText,
   AlertOctagon,
-  Layers
+  Globe,
+  ChevronDown,
+  Check
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
   activeTab: 'dashboard' | 'map' | 'prediction' | 'alerts' | 'analysis' | 'methodology';
@@ -39,7 +41,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectDemoLocation,
   onOpenSitrep,
 }) => {
+  const { language, setLanguage, t, supportedLanguages, currentLanguageObj } = useLanguage();
   const [currentTime, setCurrentTime] = useState<string>('');
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState<boolean>(false);
+  const langDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const update = () => {
@@ -59,6 +64,17 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => clearInterval(interval);
   }, []);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target as Node)) {
+        setIsLangMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 bg-[#060911]/95 border-b border-slate-800 backdrop-blur-xl">
       {/* Subtle National Tricolor Accent Bar */}
@@ -74,26 +90,26 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-slate-300 font-semibold">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              IMD DOPPLER: SHIMLA ACTIVE
+              {t('header.imd_active', 'IMD DOPPLER: SHIMLA ACTIVE')}
             </span>
             <span className="hidden md:inline text-slate-600">|</span>
             <span className="hidden md:inline text-slate-400">
-              CWC TELEMETRY: <strong className="text-cyan-400">48 GAUGES SYNCED</strong>
+              {t('header.cwc_gauges', 'CWC TELEMETRY: 48 GAUGES SYNCED')}
             </span>
             <span className="hidden md:inline text-slate-600">|</span>
             <span className="hidden lg:inline text-slate-400">
-              CAP BROADCAST PROTOCOL: <strong className="text-emerald-400">ONLINE</strong>
+              {t('header.cap_online', 'CAP BROADCAST PROTOCOL: ONLINE')}
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 text-slate-300">
+            <div className="flex items-center gap-1 text-slate-300 notranslate" translate="no">
               <Clock className="w-3.5 h-3.5 text-cyan-400" />
               <span>IST: <strong className="text-white">{currentTime || 'LIVE'}</strong></span>
             </div>
             <span className="text-slate-600">|</span>
             <span className="text-amber-400 font-bold bg-amber-950/60 border border-amber-800/60 px-2 py-0.5 rounded text-[10px]">
-              DEFENSE & CIVIL SECURITY: MHA / NDRF
+              {t('header.mha_ndrf', 'DEFENSE & CIVIL SECURITY: MHA / NDRF')}
             </span>
           </div>
         </div>
@@ -109,7 +125,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-slate-950"></span>
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 notranslate" translate="no">
                 <span className="font-black text-base sm:text-lg tracking-tight text-white font-sans">
                   FLOODGUARD <span className="text-cyan-400">COMMAND</span>
                 </span>
@@ -134,7 +150,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <ShieldAlert className="w-3.5 h-3.5" />
-              Operations Dashboard
+              {t('nav.dashboard', 'Operations Dashboard')}
             </button>
 
             <button
@@ -146,7 +162,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Map className="w-3.5 h-3.5" />
-              GIS Risk Map
+              {t('nav.map', 'GIS Risk Map')}
             </button>
 
             <button
@@ -158,7 +174,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Sliders className="w-3.5 h-3.5" />
-              ML Prediction
+              {t('nav.prediction', 'ML Prediction')}
             </button>
 
             <button
@@ -170,7 +186,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Radio className="w-3.5 h-3.5 text-red-400 animate-pulse" />
-              Alerts & Evacuation
+              {t('nav.alerts', 'Alerts & Evacuation')}
             </button>
 
             <button
@@ -182,7 +198,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <BarChart2 className="w-3.5 h-3.5" />
-              Hydrological Trends
+              {t('nav.analysis', 'Hydrological Trends')}
             </button>
 
             <button
@@ -194,12 +210,61 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <BookOpen className="w-3.5 h-3.5" />
-              About & Methodology
+              {t('nav.methodology', 'About & Methodology')}
             </button>
           </nav>
 
-          {/* Action Actions & SITREP Button */}
+          {/* Action Actions, Language Dropdown & SITREP Button */}
           <div className="flex items-center gap-2.5">
+            {/* Language Selector Dropdown */}
+            <div className="relative" ref={langDropdownRef}>
+              <button
+                onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-xs font-mono font-medium transition-all shadow-sm"
+                title="Select Interface Language (Keeps your selection without reverting)"
+              >
+                <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="notranslate flex items-center gap-1" translate="no">
+                  <span>{currentLanguageObj.flag}</span>
+                  <span className="font-bold">{currentLanguageObj.code.toUpperCase()}</span>
+                </span>
+                <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${isLangMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isLangMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-1.5 z-50 backdrop-blur-xl animate-in fade-in zoom-in-95">
+                  <div className="px-3 py-1 text-[10px] font-mono text-slate-400 border-b border-slate-800 flex items-center justify-between">
+                    <span>INTERFACE LANGUAGE</span>
+                    <span className="text-cyan-400 font-bold">7 REGIONAL</span>
+                  </div>
+                  {supportedLanguages.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => {
+                        setLanguage(lang.code);
+                        setIsLangMenuOpen(false);
+                      }}
+                      className={`w-full px-3 py-2 text-left text-xs flex items-center justify-between transition-colors notranslate ${
+                        language === lang.code
+                          ? 'bg-cyan-500/15 text-cyan-300 font-bold'
+                          : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                      }`}
+                      translate="no"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{lang.flag}</span>
+                        <div>
+                          <span className="block text-xs leading-tight font-semibold">{lang.nativeName}</span>
+                          <span className="block text-[10px] text-slate-400 leading-tight">{lang.name}</span>
+                        </div>
+                      </div>
+                      {language === lang.code && <Check className="w-3.5 h-3.5 text-cyan-400" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {onOpenSitrep && (
               <button
                 onClick={onOpenSitrep}
@@ -207,7 +272,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 title="Generate printable official Incident Situation Report"
               >
                 <FileText className="w-3.5 h-3.5 text-cyan-400" />
-                <span>OFFICIAL SITREP</span>
+                <span>{t('nav.sitrep', 'OFFICIAL SITREP')}</span>
               </button>
             )}
 
@@ -220,7 +285,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Radio className="w-3 h-3" />
-              <span>{isDemoMode ? 'SANDBOX' : 'LIVE API'}</span>
+              <span>{isDemoMode ? t('nav.sandbox', 'SANDBOX') : t('nav.live_api', 'LIVE API')}</span>
             </button>
           </div>
         </div>
@@ -231,7 +296,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Activity className="w-3.5 h-3.5 text-cyan-400" />
             <span className="text-[11px] uppercase tracking-wider text-slate-300">CWC Telemetry Monitoring Nodes:</span>
           </div>
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5 notranslate" translate="no">
             {REGIONAL_STATIONS.map((station) => (
               <button
                 key={station.name}
