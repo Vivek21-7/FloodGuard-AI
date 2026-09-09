@@ -4,7 +4,7 @@ const SETTINGS_KEY = 'floodguard_settings';
 const DEMO_CONTROLS_KEY = 'floodguard_demo_controls';
 
 export const defaultSettings: AppSettings = {
-  isDemoMode: true,
+  isDemoMode: false,
   mapStyle: 'terrain',
   units: 'metric',
   autoRefreshIntervalSec: 60,

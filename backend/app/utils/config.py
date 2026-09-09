@@ -7,7 +7,7 @@ DATA_DIR = BASE_DIR.parent / "data"
 
 class Settings(BaseSettings):
     APP_NAME: str = "FloodGuard AI"
-    APP_MODE: str = os.getenv("APP_MODE", "DEMO")  # "DEMO" or "LIVE"
+    APP_MODE: str = os.getenv("APP_MODE", "LIVE")  # "LIVE" or "DEMO"
     HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", "8000"))
     DEBUG: bool = os.getenv("DEBUG", "True").lower() in ("true", "1")
