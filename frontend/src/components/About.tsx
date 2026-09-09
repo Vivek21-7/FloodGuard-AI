@@ -9,7 +9,8 @@ import {
   FileText, 
   ExternalLink,
   Users,
-  Clock
+  Clock,
+  Sparkles
 } from 'lucide-react';
 import { ModelInfoResponse } from '../types';
 
@@ -34,6 +35,93 @@ export const About: React.FC<AboutProps> = ({ modelInfo }) => {
         <p className="text-sm text-slate-300 mt-3 leading-relaxed max-w-3xl">
           Designed for the <strong>Ministry of Home Affairs</strong> and the <strong>National Disaster Response Force (NDRF)</strong> to mitigate the devastating impacts of cloudbursts, sudden debris flows, and flash floods in fragile Himalayan terrains through multi-source environmental fusion and physics-constrained ML inference.
         </p>
+      </div>
+
+      {/* Step 3: Novelty & Key Innovations (Why We Are NOT Just A Weather Website) */}
+      <div className="bg-slate-900/90 border border-cyan-500/30 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-semibold mb-3">
+          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+          <span>Roadmap Step 3 • Innovation & Core Differentiation</span>
+        </div>
+        <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-2">
+          Why FloodGuard AI is NOT Just Another Weather App
+        </h2>
+        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
+          Traditional meteorological websites (like AccuWeather, IMD portal, or standard rain apps) merely report rainfall amounts or weather forecasts. However, <strong>rainfall alone does NOT determine a flash flood</strong>. A flash flood in mountainous terrain is a hydrological runoff catastrophe governed by soil saturation, slope gradient, valley confinement, and river channel dynamics.
+        </p>
+
+        {/* Side-by-Side Comparison Table */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="p-5 rounded-2xl bg-red-950/20 border border-red-500/30">
+            <h3 className="text-sm font-bold text-red-400 mb-3 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" /> Traditional Weather Websites
+            </h3>
+            <ul className="space-y-2 text-xs text-slate-300">
+              <li className="flex items-start gap-2">
+                <span className="text-red-400 font-bold">✕</span>
+                <span><strong>Passive Weather Reporting:</strong> Only displays mm of rain, temperature, and general rain forecast.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-400 font-bold">✕</span>
+                <span><strong>Coarse District Granularity:</strong> "Heavy rain in Kullu district" (covering 5,500 sq km, useless for a specific village).</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-400 font-bold">✕</span>
+                <span><strong>Ignores Hydrology:</strong> No soil moisture, no terrain slope, no DEM elevation, and no river channel depth.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-400 font-bold">✕</span>
+                <span><strong>No Actionable Lead Time:</strong> Cannot tell villagers how many minutes they have to evacuate.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-cyan-950/20 border border-cyan-500/40">
+            <h3 className="text-sm font-bold text-cyan-300 mb-3 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-cyan-400" /> FloodGuard AI Innovations
+            </h3>
+            <ul className="space-y-2 text-xs text-slate-200">
+              <li className="flex items-start gap-2">
+                <span className="text-cyan-400 font-bold">✓</span>
+                <span><strong>Predictive Hydrological Probability:</strong> Outputs actual flood probability (0-100%) and scientific risk bands.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-cyan-400 font-bold">✓</span>
+                <span><strong>Hyper-Local Village & Catchment Precision:</strong> 3-way coordinate selection (GPS, Search, Map Click) down to village coordinates.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-cyan-400 font-bold">✓</span>
+                <span><strong>Multi-Source Environmental Fusion:</strong> Rainfall + Deep Soil Saturation + 30m DEM Slope + River Gauge Hydraulics.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-cyan-400 font-bold">✓</span>
+                <span><strong>Actionable NDRF SOPs & Evacuation Windows:</strong> Provides calculated lead times, shelter locations, and emergency directives.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* 5 Architectural Innovations */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
+            <div className="font-bold text-cyan-300 mb-1">1. Sensors Optional / API-First</div>
+            <p className="text-slate-400 text-[11px]">
+              Requires zero hardware deployments to run immediately. Pulls live data from Open-Meteo & DEM APIs with optional drop-in IoT telemetry.
+            </p>
+          </div>
+          <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
+            <div className="font-bold text-cyan-300 mb-1">2. Transparent Explainability</div>
+            <p className="text-slate-400 text-[11px]">
+              Explains exact contributing drivers (e.g. 78% soil saturation + 31° slope) rather than a mysterious black-box number.
+            </p>
+          </div>
+          <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
+            <div className="font-bold text-cyan-300 mb-1">3. Scientific Risk Banding</div>
+            <p className="text-slate-400 text-[11px]">
+              Grounded in hydrological threshold benchmarks: Low (&lt;30%), Moderate (30-59%), High (60-84%), and Critical (≥85%).
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* System Architecture SVG Diagram */}

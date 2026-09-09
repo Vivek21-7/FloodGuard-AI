@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar } from './components/Navbar';
 import { Home } from './pages/Home';
 import { MapPage } from './pages/Map';
+import { PredictionPage } from './pages/Prediction';
+import { AlertsPage } from './pages/Alerts';
 import { AnalysisPage } from './pages/Analysis';
 import { MethodologyPage } from './pages/Methodology';
 import { api } from './services/api';
@@ -29,7 +31,7 @@ const DEMO_PRESET_COORDINATES: Record<string, { lat: number; lon: number; name: 
 };
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'map' | 'analysis' | 'methodology'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'map' | 'prediction' | 'alerts' | 'analysis' | 'methodology'>('dashboard');
   const [isDemoMode, setIsDemoMode] = useState<boolean>(() => storage.getSettings().isDemoMode);
   const [demoControls, setDemoControls] = useState<DemoControlsState>(() => storage.getDemoControls());
   const [iotStatus, setIotStatus] = useState<string | null>(null);
@@ -232,6 +234,9 @@ export const App: React.FC = () => {
             onSendIoTPacket={handleSendIoTPacket}
             iotStatus={iotStatus}
             onSearchQuery={handleSearchQuery}
+            riskMapFeatures={riskMapFeatures}
+            historicalEvents={historicalEvents}
+            onNavigateToTab={(tab) => setActiveTab(tab)}
           />
         )}
 
@@ -243,6 +248,32 @@ export const App: React.FC = () => {
             onSelectLocation={handleSelectLocation}
             predictionData={predictionData}
             isLoading={isLoading}
+          />
+        )}
+
+        {activeTab === 'prediction' && (
+          <PredictionPage
+            selectedLocation={selectedLocation}
+            onSelectLocation={handleSelectLocation}
+            onUseMyLocation={handleUseMyLocation}
+            envData={envData}
+            terrainData={terrainData}
+            predictionData={predictionData}
+            isLoading={isLoading}
+            isDemoMode={isDemoMode}
+            demoControls={demoControls}
+            onDemoControlsChange={handleDemoControlsChange}
+            onSendIoTPacket={handleSendIoTPacket}
+            iotStatus={iotStatus}
+            onSearchQuery={handleSearchQuery}
+            onRunPrediction={() => loadLocationData(selectedLocation.latitude, selectedLocation.longitude, selectedLocation.name)}
+          />
+        )}
+
+        {activeTab === 'alerts' && (
+          <AlertsPage
+            predictionData={predictionData}
+            selectedLocation={selectedLocation}
           />
         )}
 

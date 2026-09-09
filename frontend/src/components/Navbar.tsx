@@ -11,8 +11,8 @@ import {
 } from 'lucide-react';
 
 interface NavbarProps {
-  activeTab: 'dashboard' | 'map' | 'analysis' | 'methodology';
-  setActiveTab: (tab: 'dashboard' | 'map' | 'analysis' | 'methodology') => void;
+  activeTab: 'dashboard' | 'map' | 'prediction' | 'alerts' | 'analysis' | 'methodology';
+  setActiveTab: (tab: 'dashboard' | 'map' | 'prediction' | 'alerts' | 'analysis' | 'methodology') => void;
   isDemoMode: boolean;
   setIsDemoMode: (val: boolean) => void;
   onSelectDemoLocation: (loc: string) => void;
@@ -52,59 +52,83 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
               </div>
               <span className="text-[10px] text-slate-400 hidden sm:block">
-                Ministry of Home Affairs / NDRF • Hilly Region Flash Flood Warning
+                Hyper-Local Multi-Source Flash Flood Early Warning System
               </span>
             </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1">
+          {/* Navigation Links - 6 Core Pages */}
+          <nav className="hidden lg:flex items-center gap-1">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
                 activeTab === 'dashboard'
                   ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
-              <ShieldAlert className="w-4 h-4" />
+              <ShieldAlert className="w-3.5 h-3.5" />
               Dashboard
             </button>
 
             <button
               onClick={() => setActiveTab('map')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
                 activeTab === 'map'
                   ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
-              <Map className="w-4 h-4" />
+              <Map className="w-3.5 h-3.5" />
               Risk Map
             </button>
 
             <button
+              onClick={() => setActiveTab('prediction')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                activeTab === 'prediction'
+                  ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              Prediction
+            </button>
+
+            <button
+              onClick={() => setActiveTab('alerts')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                activeTab === 'alerts'
+                  ? 'bg-red-500/15 text-red-300 border border-red-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <Radio className="w-3.5 h-3.5 text-red-400" />
+              Alerts & Warnings
+            </button>
+
+            <button
               onClick={() => setActiveTab('analysis')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
                 activeTab === 'analysis'
                   ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
-              <BarChart2 className="w-4 h-4" />
+              <BarChart2 className="w-3.5 h-3.5" />
               Historical Analysis
             </button>
 
             <button
               onClick={() => setActiveTab('methodology')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
                 activeTab === 'methodology'
                   ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
-              <BookOpen className="w-4 h-4" />
-              Methodology
+              <BookOpen className="w-3.5 h-3.5" />
+              About / Methodology
             </button>
           </nav>
 

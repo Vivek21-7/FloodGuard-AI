@@ -5,7 +5,9 @@ import {
   TerrainResponse, 
   PredictResponse, 
   DemoControlsState, 
-  LocationResult 
+  LocationResult,
+  RiskMapFeature,
+  HistoricalEventItem
 } from '../types';
 
 interface HomeProps {
@@ -22,6 +24,9 @@ interface HomeProps {
   onSendIoTPacket: () => void;
   iotStatus: string | null;
   onSearchQuery: (q: string) => Promise<LocationResult[]>;
+  riskMapFeatures?: RiskMapFeature[];
+  historicalEvents?: HistoricalEventItem[];
+  onNavigateToTab?: (tab: 'map' | 'prediction' | 'alerts' | 'analysis' | 'methodology') => void;
 }
 
 export const Home: React.FC<HomeProps> = (props) => {
