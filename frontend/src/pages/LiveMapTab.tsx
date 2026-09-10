@@ -891,13 +891,26 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
             </button>
           )}
         </div>
+
+        {/* 📊 When Panel is Closed: Open Monitoring Button Docked on the LEFT SIDE */}
+        {!isSideCardExpanded && (
+          <button
+            onClick={() => setIsSideCardExpanded(true)}
+            className="w-full py-2.5 px-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl shadow-xl flex items-center justify-between font-mono text-xs font-black transition-all cursor-pointer group active:scale-98 animate-in fade-in slide-in-from-top-2 border border-white/30"
+            title="Open Pan-India Live Flood Monitoring Panel"
+          >
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="truncate">{isPanIndia ? 'Open Pan-India Live Monitoring' : 'Open Catchment Intel'}</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-blue-100 group-hover:translate-x-1 transition-transform shrink-0" />
+          </button>
+        )}
       </div>
 
-      {/* 📊 Tactical Floating Side Card (Top Right) */}
-      <div className={`absolute top-4 right-4 z-10 transition-all duration-300 select-none ${
-        isSideCardExpanded ? 'w-[320px] sm:w-[370px]' : 'w-auto'
-      }`}>
-        {isSideCardExpanded ? (
+      {/* 📊 Tactical Floating Side Card (Top Right - ONLY rendered when expanded so right map points are completely unobstructed when closed) */}
+      {isSideCardExpanded && (
+        <div className="absolute top-4 right-4 z-10 transition-all duration-300 select-none w-[320px] sm:w-[370px] animate-in fade-in slide-in-from-right-4">
           <div className="bg-white/95 backdrop-blur-xl border border-blue-200/80 rounded-3xl p-4 sm:p-5 shadow-2xl text-slate-800 font-mono space-y-3.5 max-h-[calc(100vh-100px)] overflow-y-auto">
             {/* Card Header with Collapse Button & Pan-India Mode Indicator */}
             <div className="flex items-center justify-between pb-2.5 border-b border-blue-100">
@@ -1125,18 +1138,8 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
               </button>
             )}
           </div>
-        ) : (
-          <button
-            onClick={() => setIsSideCardExpanded(true)}
-            className="px-4 py-2.5 bg-white/95 hover:bg-blue-50 active:bg-blue-100 backdrop-blur-md border-2 border-blue-600 rounded-2xl shadow-xl flex items-center gap-2.5 text-blue-950 font-mono text-xs font-black transition-all cursor-pointer group active:scale-95"
-            title="Open Pan-India Live Flood Monitoring Panel"
-          >
-            <ChevronLeft className="w-4 h-4 text-blue-600 group-hover:-translate-x-1 transition-transform" />
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
-            <span>{isPanIndia ? 'Open Pan-India Live Monitoring' : 'Open Risk Intel'}</span>
-          </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
