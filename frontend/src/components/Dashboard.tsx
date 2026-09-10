@@ -36,6 +36,9 @@ import { PredictionCard } from './PredictionCard';
 import { AlertPanel } from './AlertPanel';
 import { DemoSliderControls } from './DemoSliderControls';
 import { RiskMap } from './RiskMap';
+import { PanIndiaLiveMonitoring } from './PanIndiaLiveMonitoring';
+import { ThreeLayerArchitectureBanner } from './ThreeLayerArchitectureBanner';
+import { DataPartnershipsBanner } from './DataPartnershipsBanner';
 
 interface DashboardProps {
   selectedLocation: { latitude: number; longitude: number; name?: string };
@@ -240,6 +243,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
       </div>
+
+      {/* 🏛️ 3-Layer Hydro-Meteorological Intelligence Pipeline Banner (7C: Content) */}
+      <ThreeLayerArchitectureBanner />
+
+      {/* 🌊 Pan-India Live Multi-City Real-Time Prediction Monitoring Matrix */}
+      <PanIndiaLiveMonitoring onSelectCityLocation={onSelectLocation} />
 
       {/* 📊 4 Real Operational Telemetry Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 font-mono">
@@ -548,6 +557,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
       )}
+
+      {/* 📡 National & Global Data Providers (7C: Connection) */}
+      <DataPartnershipsBanner />
     </div>
   );
 };

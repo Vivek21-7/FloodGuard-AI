@@ -4,13 +4,15 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 
+import asyncio
 from app.models.database import get_db, Village, HistoricalEvent, SensorData
 from app.models.schemas import (
     HealthResponse, LocationSearchResponse, LocationReverseResponse,
     EnvironmentResponse, TerrainResponse, HistoricalRiskResponse,
     HistoricalEventsListResponse, PredictRequest, PredictResponse,
     RiskMapResponse, RiskMapFeature, AlertsResponse,
-    SensorDataRequest, SensorDataResponse, ModelInfoResponse
+    SensorDataRequest, SensorDataResponse, ModelInfoResponse,
+    ForecastResponse
 )
 from app.services.location_service import location_service
 from app.services.weather_service import weather_service
@@ -257,3 +259,126 @@ async def list_historical_events(
 async def get_model_info():
     info = get_model_metadata()
     return info
+
+# Target Pan-India Key Stations for Live Monitoring Matrix
+PAN_INDIA_MONITORING_CITIES = [
+    {"name": "Hyderabad", "lat": 17.3850, "lon": 78.4744, "basin": "Musi / Krishna"},
+    {"name": "Bangalore", "lat": 12.9716, "lon": 77.5946, "basin": "Cauvery / Vrishabhavathi"},
+    {"name": "Mumbai", "lat": 19.0760, "lon": 72.8777, "basin": "Mithi / Coastal"},
+    {"name": "Delhi", "lat": 28.7041, "lon": 77.1025, "basin": "Yamuna"},
+    {"name": "Kolkata", "lat": 22.5726, "lon": 88.3639, "basin": "Hooghly / Ganga"},
+    {"name": "Kullu", "lat": 31.9579, "lon": 77.1095, "basin": "Upper Beas"},
+    {"name": "Wayanad", "lat": 11.5510, "lon": 76.1260, "basin": "Chaliyar / Kabini"},
+    {"name": "Kedarnath", "lat": 30.7346, "lon": 79.0669, "basin": "Mandakini / Alaknanda"},
+    {"name": "Guwahati", "lat": 26.1445, "lon": 91.7362, "basin": "Brahmaputra"},
+    {"name": "Chiplun", "lat": 17.5323, "lon": 73.5186, "basin": "Vashishti"}
+]
+
+# 13. Short-Term Hourly Meteorological & Hydrological Forecast (Next 3–6 Hours)
+@router.get("/forecast", response_model=ForecastResponse)
+async def get_forecast(
+    lat: Optional[float] = Query(None, description="Latitude"),
+    latitude: Optional[float] = Query(None, description="Latitude alternative"),
+    lon: Optional[float] = Query(None, description="Longitude"),
+    longitude: Optional[float] = Query(None, description="Longitude alternative"),
+    name: Optional[str] = Query(None, description="Location Name"),
+    db: Session = Depends(get_db)
+):
+    target_lat = lat if lat is not None else (latitude if latitude is not None else 17.3850)
+    target_lon = lon if lon is not None else (longitude if longitude is not None else 78.4744)
+    loc_name = name or f"Target ({round(target_lat, 3)}°N, {round(target_lon, 3)}°E)"
+    pred = await prediction_service.predict(PredictRequest(latitude=target_lat, longitude=target_lon, location_name=loc_name), db)
+    
+    return {
+        "location": pred["location"],
+        "current": {
+            "flood_probability": pred["prediction"]["flood_probability"],
+            "flood_probability_percent": pred["prediction"]["flood_probability_percent"],
+            "risk_level": pred["prediction"]["risk_level"],
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        },
+        "next_3_hours": pred.get("forecast_3h", []),
+        "next_6_hours": pred.get("forecast_6h", []),
+        "river_forecast": pred.get("river_forecast", []),
+        "max_probability_next_3h": pred.get("max_probability_next_3h", pred["prediction"]["flood_probability"]),
+        "alert_level": pred["prediction"]["risk_level"]
+    }
+
+# 14. Retrospective & Prospective Timeline (Past 6h -> NOW -> Future 3h)
+@router.get("/timeline")
+async def get_timeline(
+    lat: Optional[float] = Query(None, description="Latitude"),
+    latitude: Optional[float] = Query(None, description="Latitude alternative"),
+    lon: Optional[float] = Query(None, description="Longitude"),
+    longitude: Optional[float] = Query(None, description="Longitude alternative"),
+    name: Optional[str] = Query(None, description="Location Name"),
+    db: Session = Depends(get_db)
+):
+    target_lat = lat if lat is not None else (latitude if latitude is not None else 17.3850)
+    target_lon = lon if lon is not None else (longitude if longitude is not None else 78.4744)
+    loc_name = name or f"Target ({round(target_lat, 3)}°N, {round(target_lon, 3)}°E)"
+    pred = await prediction_service.predict(PredictRequest(latitude=target_lat, longitude=target_lon, location_name=loc_name), db)
+    return {
+        "location": pred["location"],
+        "timeline": pred.get("timeline", [])
+    }
+
+# In-memory fast cache for Pan-India multi-city matrix
+_multi_city_cache = {"timestamp": 0.0, "data": []}
+
+async def _fetch_city_prediction(city: dict, db: Session):
+    try:
+        pred = await prediction_service.predict(
+            PredictRequest(latitude=city["lat"], longitude=city["lon"], location_name=city["name"]),
+            db
+        )
+        return {
+            "name": city["name"],
+            "basin": city["basin"],
+            "latitude": city["lat"],
+            "longitude": city["lon"],
+            "flood_probability_percent": pred["prediction"]["flood_probability_percent"],
+            "risk_level": pred["prediction"]["risk_level"],
+            "lead_time": pred["warning"]["lead_time_minutes"],
+            "message": pred["warning"]["message"],
+            "forecast_3h": pred.get("forecast_3h", []),
+            "max_probability_next_3h": pred.get("max_probability_next_3h", pred["prediction"]["flood_probability"])
+        }
+    except Exception as e:
+        logger.warning(f"Error fetching city prediction for {city['name']}: {e}")
+        return None
+
+# 15. Pan-India Multi-City Live Monitoring Matrix
+@router.get("/predictions/all")
+async def get_all_predictions(db: Session = Depends(get_db)):
+    import time
+    now_ts = time.time()
+    if _multi_city_cache["data"] and (now_ts - _multi_city_cache["timestamp"] < 45):
+        return {"cities": _multi_city_cache["data"], "timestamp": datetime.now(timezone.utc).isoformat(), "cached": True}
+
+    tasks = [_fetch_city_prediction(city, db) for city in PAN_INDIA_MONITORING_CITIES]
+    raw_results = await asyncio.gather(*tasks, return_exceptions=False)
+    results = [r for r in raw_results if r is not None]
+    
+    _multi_city_cache["timestamp"] = now_ts
+    _multi_city_cache["data"] = results
+    return {"cities": results, "timestamp": datetime.now(timezone.utc).isoformat(), "cached": False}
+
+# 16. Live Critical / High Risk Alerts
+@router.get("/alerts/live")
+async def get_live_alerts(db: Session = Depends(get_db)):
+    all_preds_resp = await get_all_predictions(db)
+    cities = all_preds_resp.get("cities", [])
+    alerts = []
+    for c in cities:
+        if c["risk_level"] in ["CRITICAL", "HIGH"]:
+            alerts.append({
+                "location": c["name"],
+                "basin": c["basin"],
+                "alert_level": c["risk_level"],
+                "flood_probability_percent": c["flood_probability_percent"],
+                "lead_time_minutes": c["lead_time"],
+                "message": c.get("message", "Elevated hydrometric risk detected."),
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            })
+    return {"live_alerts": alerts, "count": len(alerts)}

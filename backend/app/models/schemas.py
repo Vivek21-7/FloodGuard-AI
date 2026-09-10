@@ -129,12 +129,57 @@ class WarningInfo(BaseModel):
     estimated_peak_time: str
     message: str
 
+class HourlyForecastItem(BaseModel):
+    hour: int
+    time: str
+    rainfall_mm: float
+    probability_percent: float
+    cloud_cover_percent: Optional[float] = 0.0
+    temperature_c: Optional[float] = 22.0
+    predicted_river_level_m: Optional[float] = None
+    predicted_discharge_cumecs: Optional[float] = None
+    flood_probability: float
+    flood_probability_percent: int
+    risk_level: str
+    threshold_crossed: bool = False
+
+class TimelineItem(BaseModel):
+    time_label: str
+    time: str
+    rainfall_mm: float
+    river_level_m: float
+    soil_moisture_percent: float
+    flood_probability_percent: int
+    risk_level: str
+    status: str
+
+class RiverForecastItem(BaseModel):
+    hour_ahead: int
+    predicted_level_m: float
+    predicted_discharge_cumecs: float
+    rainfall_driver_mm: float
+    status: str
+
 class PredictResponse(BaseModel):
     location: LocationCoordinates
     prediction: PredictionDetails
     contributing_factors: List[ContributingFactor]
     warning: WarningInfo
     recommendations: List[str]
+    forecast_3h: Optional[List[HourlyForecastItem]] = []
+    forecast_6h: Optional[List[HourlyForecastItem]] = []
+    river_forecast: Optional[List[RiverForecastItem]] = []
+    timeline: Optional[List[TimelineItem]] = []
+    max_probability_next_3h: Optional[float] = 0.0
+
+class ForecastResponse(BaseModel):
+    location: LocationCoordinates
+    current: Dict[str, Any]
+    next_3_hours: List[HourlyForecastItem]
+    next_6_hours: List[HourlyForecastItem]
+    river_forecast: List[RiverForecastItem]
+    max_probability_next_3h: float
+    alert_level: str
 
 # 7. Risk Map
 class RiskMapFeature(BaseModel):

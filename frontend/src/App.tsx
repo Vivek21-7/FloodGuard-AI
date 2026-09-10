@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar } from './components/Navbar';
 import { SitrepModal } from './components/SitrepModal';
+import { CitizenReportModal } from './components/CitizenReportModal';
 import { Home } from './pages/Home';
 import { MapPage } from './pages/Map';
 import { PredictionPage } from './pages/Prediction';
@@ -58,6 +59,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [networkError, setNetworkError] = useState<string | null>(null);
   const [isSitrepOpen, setIsSitrepOpen] = useState<boolean>(false);
+  const [isCitizenReportOpen, setIsCitizenReportOpen] = useState<boolean>(false);
 
   // Load telemetry & run prediction for the active coordinate
   const loadLocationData = useCallback(async (
@@ -229,6 +231,7 @@ export const App: React.FC = () => {
         setIsDemoMode={setIsDemoMode}
         onSelectDemoLocation={handleSelectDemoLocation}
         onOpenSitrep={() => setIsSitrepOpen(true)}
+        onOpenCitizenReport={() => setIsCitizenReportOpen(true)}
       />
 
       {/* Main Page Container */}
@@ -331,6 +334,14 @@ export const App: React.FC = () => {
         envData={envData}
         terrainData={terrainData}
         selectedLocation={selectedLocation}
+      />
+
+      {/* Citizen & Observer Ground Intel Modal (7C: Community) */}
+      <CitizenReportModal
+        isOpen={isCitizenReportOpen}
+        onClose={() => setIsCitizenReportOpen(false)}
+        defaultLocation={selectedLocation.name}
+        defaultCoordinates={selectedLocation}
       />
     </div>
   );

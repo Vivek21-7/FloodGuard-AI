@@ -122,6 +122,40 @@ export interface WarningInfo {
   message: string;
 }
 
+export interface HourlyForecastItem {
+  hour: number;
+  time: string;
+  rainfall_mm: number;
+  probability_percent: number;
+  cloud_cover_percent?: number;
+  temperature_c?: number;
+  predicted_river_level_m?: number;
+  predicted_discharge_cumecs?: number;
+  flood_probability: number;
+  flood_probability_percent: number;
+  risk_level: RiskLevel;
+  threshold_crossed?: boolean;
+}
+
+export interface RiverForecastItem {
+  hour_ahead: number;
+  predicted_level_m: number;
+  predicted_discharge_cumecs: number;
+  rainfall_driver_mm: number;
+  status: string;
+}
+
+export interface TimelineItem {
+  time_label: string;
+  time: string;
+  rainfall_mm: number;
+  river_level_m: number;
+  soil_moisture_percent: number;
+  flood_probability_percent: number;
+  risk_level: RiskLevel;
+  status: string;
+}
+
 export interface PredictResponse {
   location: LocationCoordinates;
   prediction: PredictionDetails;
@@ -129,6 +163,26 @@ export interface PredictResponse {
   warning: WarningInfo;
   recommendations: string[];
   data_status?: DataStatus;
+  forecast_3h?: HourlyForecastItem[];
+  forecast_6h?: HourlyForecastItem[];
+  river_forecast?: RiverForecastItem[];
+  timeline?: TimelineItem[];
+  max_probability_next_3h?: number;
+}
+
+export interface ForecastResponse {
+  location: LocationCoordinates;
+  current: {
+    flood_probability: number;
+    flood_probability_percent: number;
+    risk_level: RiskLevel;
+    timestamp: string;
+  };
+  next_3_hours: HourlyForecastItem[];
+  next_6_hours: HourlyForecastItem[];
+  river_forecast: RiverForecastItem[];
+  max_probability_next_3h: number;
+  alert_level: RiskLevel;
 }
 
 export interface PredictRequest {

@@ -8,6 +8,8 @@ import {
   HistoricalRiskResponse,
   PredictRequest,
   PredictResponse,
+  ForecastResponse,
+  TimelineItem,
   RiskMapResponse,
   AlertsResponse,
   HistoricalEventItem,
@@ -115,6 +117,34 @@ export const api = {
   // 12. Model Info
   getModelInfo: async (): Promise<ModelInfoResponse> => {
     const res = await apiClient.get<ModelInfoResponse>('/api/model/info');
+    return res.data;
+  },
+
+  // 13. Short-Term Forecast (Next 3-6 Hours)
+  getForecast: async (lat: number, lon: number, name?: string): Promise<ForecastResponse> => {
+    const res = await apiClient.get<ForecastResponse>('/api/forecast', {
+      params: { lat, lon, name },
+    });
+    return res.data;
+  },
+
+  // 14. Timeline (Past 6h -> NOW -> Future 3h)
+  getTimeline: async (lat: number, lon: number, name?: string): Promise<{ location: any; timeline: TimelineItem[] }> => {
+    const res = await apiClient.get<{ location: any; timeline: TimelineItem[] }>('/api/timeline', {
+      params: { lat, lon, name },
+    });
+    return res.data;
+  },
+
+  // 15. Pan-India Multi-City Predictions
+  getAllPredictions: async (): Promise<{ cities: any[]; timestamp: string }> => {
+    const res = await apiClient.get<{ cities: any[]; timestamp: string }>('/api/predictions/all');
+    return res.data;
+  },
+
+  // 16. Live Alerts
+  getLiveAlerts: async (): Promise<{ live_alerts: any[]; count: number }> => {
+    const res = await apiClient.get<{ live_alerts: any[]; count: number }>('/api/alerts/live');
     return res.data;
   },
 };

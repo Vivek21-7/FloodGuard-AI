@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloodGuard AI Live - Real-Time Hydrometeorological Monitoring</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #38bdf8;
+            --alert-critical: #ef4444;
+            --alert-high: #f97316;
+            --alert-medium: #eab308;
+            --alert-low: #22c55e;
+            --alert-minimal: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .header-title h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 10px #22c55e;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 24px;
+        }
+
+        .location-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .location-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .location-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .alert-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .alert-badge.critical { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+        .alert-badge.high { background: rgba(249, 115, 22, 0.2); color: #f97316; border: 1px solid #f97316; }
+        .alert-badge.medium { background: rgba(234, 179, 8, 0.2); color: #eab308; border: 1px solid #eab308; }
+        .alert-badge.low { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid #22c55e; }
+        .alert-badge.minimal { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid #3b82f6; }
+
+        .probability-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .probability-bar {
+            width: 100%;
+            height: 24px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            margin-bottom: 20px;
+        }
+
+        .probability-fill {
+            height: 100%;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            transition: width 0.8s ease-in-out;
+            background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .metric-item {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-val {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 4px;
+        }
+
+        .forecast-container {
+            border-top: 1px solid var(--card-border);
+            padding-top: 16px;
+        }
+
+        .forecast-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .forecast-hours {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .forecast-card {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .forecast-hour {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .forecast-prob {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-top: 4px;
+        }
+
+        .card-footer {
+            margin-top: 16px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title">
+                <h1>🌊 FloodGuard AI Live</h1>
+                <p>Real-Time Multimodally Aggregated Flood Forecasting & Early Warning System</p>
+            </div>
+            <div class="connection-status">
+                <div class="status-dot" id="status-dot"></div>
+                <span id="status-text">Connecting to Live Stream...</span>
+            </div>
+        </div>
+
+        <div class="grid" id="locations-grid">
+            <!-- Cards rendered dynamically -->
+        </div>
+    </div>
+
+    <script>
+        const SOCKET_URL = window.location.origin;
+        let socket = null;
+        
+        try {
+            socket = io(SOCKET_URL, { timeout: 3000 });
+        } catch (e) {
+            console.log('Socket.IO not initialized, using REST polling mode');
+        }
+
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+
+        if (socket) {
+            socket.on('connect', () => {
+                statusDot.style.background = '#22c55e';
+                statusDot.style.boxShadow = '0 0 10px #22c55e';
+                statusText.innerText = 'Live WebSocket Stream Connected';
+            });
+
+            socket.on('initial_data', (data) => {
+                renderAllLocations(data);
+            });
+
+            socket.on('prediction_update', (msg) => {
+                updateLocationData(msg.location, msg.data);
+            });
+
+            socket.on('disconnect', () => {
+                statusDot.style.background = '#eab308';
+                statusText.innerText = 'WebSocket Disconnected (Polling REST Fallback)';
+            });
+        }
+
+        // REST API Polling Fallback
+        async function fetchPredictionsREST() {
+            try {
+                const res = await fetch('/api/predictions');
+                if (res.ok) {
+                    const data = await res.json();
+                    renderAllLocations(data);
+                    statusDot.style.background = '#22c55e';
+                    statusText.innerText = 'Live REST Pipeline Connected';
+                }
+            } catch (err) {
+                statusDot.style.background = '#ef4444';
+                statusText.innerText = 'Telemetry Server Offline';
+            }
+        }
+
+        fetchPredictionsREST();
+        setInterval(fetchPredictionsREST, 15000);
+
+        function renderAllLocations(predictions) {
+            const container = document.getElementById('locations-grid');
+            container.innerHTML = '';
+            for (const [location, data] of Object.entries(predictions)) {
+                container.innerHTML += buildCardHTML(location, data);
+            }
+        }
+
+        function updateLocationData(location, data) {
+            const existing = document.getElementById(`card-${location.replace(/\s+/g, '-')}`);
+            if (existing) {
+                existing.outerHTML = buildCardHTML(location, data);
+            } else {
+                document.getElementById('locations-grid').innerHTML += buildCardHTML(location, data);
+            }
+        }
+
+        function buildCardHTML(location, data) {
+            const current = data.current;
+            const alertClass = (data.alert_level || 'minimal').toLowerCase();
+            const probPct = Math.round(current.flood_probability * 100);
+            const cardId = `card-${location.replace(/\s+/g, '-')}`;
+
+            let forecastCards = '';
+            (data.next_3_hours || []).forEach(f => {
+                const fPct = Math.round(f.flood_probability * 100);
+                forecastCards += `
+                    <div class="forecast-card">
+                        <div class="forecast-hour">+${f.hour}h Forecast</div>
+                        <div class="forecast-prob">${fPct}%</div>
+                    </div>
+                `;
+            });
+
+            return `
+                <div class="location-card" id="${cardId}">
+                    <div class="card-top">
+                        <div class="location-name">${location}</div>
+                        <div class="alert-badge ${alertClass}">${data.alert_level}</div>
+                    </div>
+
+                    <div class="probability-header">
+                        <span>Current Flood Risk Probability</span>
+                        <span>${probPct}%</span>
+                    </div>
+
+                    <div class="probability-bar">
+                        <div class="probability-fill" style="width: ${Math.max(probPct, 12)}%;">
+                            ${probPct}%
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Live Rainfall</div>
+                            <div class="metric-val">${current.rainfall_mm} mm</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">River Level</div>
+                            <div class="metric-val">${current.river_level_m ? current.river_level_m.toFixed(2) : 'N/A'} m</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Topsoil Moisture</div>
+                            <div class="metric-val">${current.soil_moisture ? current.soil_moisture.toFixed(3) : 'N/A'}</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Max Risk (3h)</div>
+                            <div class="metric-val">${Math.round((data.max_probability_next_3h || 0) * 100)}%</div>
+                        </div>
+                    </div>
+
+                    <div class="forecast-container">
+                        <div class="forecast-title">3-Hour Ahead Hydrometeorological Projection</div>
+                        <div class="forecast-hours">
+                            ${forecastCards}
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <span>Status: ${current.flood_likely ? '⚠️ FLOOD LIKELY' : '✅ NORMAL BASELINE'}</span>
+                        <span>Updated: ${new Date(current.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

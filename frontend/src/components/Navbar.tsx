@@ -12,9 +12,11 @@ import {
   AlertOctagon,
   Globe,
   ChevronDown,
-  Check
+  Check,
+  Users
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { EmergencyTicker } from './EmergencyTicker';
 
 interface NavbarProps {
   activeTab: 'dashboard' | 'map' | 'prediction' | 'alerts' | 'analysis' | 'methodology';
@@ -23,6 +25,7 @@ interface NavbarProps {
   setIsDemoMode: (val: boolean) => void;
   onSelectDemoLocation: (loc: string) => void;
   onOpenSitrep?: () => void;
+  onOpenCitizenReport?: () => void;
 }
 
 const REGIONAL_STATIONS = [
@@ -42,6 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   setIsDemoMode,
   onSelectDemoLocation,
   onOpenSitrep,
+  onOpenCitizenReport,
 }) => {
   const { language, setLanguage, t, supportedLanguages, currentLanguageObj } = useLanguage();
   const [currentTime, setCurrentTime] = useState<string>('');
@@ -79,6 +83,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 border-b border-slate-200/80 backdrop-blur-xl shadow-sm">
+      {/* Live Hydrometric Emergency Ticker Marquee */}
+      <EmergencyTicker />
+
       {/* National Tricolor Accent Bar */}
       <div className="h-1.5 w-full flex">
         <div className="flex-1 bg-[#FF9933]"></div>
@@ -266,6 +273,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </div>
               )}
             </div>
+
+            {onOpenCitizenReport && (
+              <button
+                onClick={onOpenCitizenReport}
+                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-mono font-semibold transition-all shadow-xs"
+                title="Submit or view citizen and local observer ground reports"
+              >
+                <Users className="w-3.5 h-3.5 text-emerald-600" />
+                <span>GROUND INTEL</span>
+              </button>
+            )}
 
             {onOpenSitrep && (
               <button

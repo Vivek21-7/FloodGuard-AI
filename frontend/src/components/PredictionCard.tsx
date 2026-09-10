@@ -206,8 +206,123 @@ export const PredictionCard: React.FC<PredictionCardProps> = ({
         </div>
       </div>
 
+      {/* Short-Term Hourly Forecast Trajectory (Next 3–6 Hours) */}
+      {predictionData.forecast_3h && predictionData.forecast_3h.length > 0 && (
+        <div className="border-t border-slate-100 pt-4 mt-4">
+          <div className="flex items-center justify-between mb-3 font-mono">
+            <div className="flex items-center gap-1.5">
+              <Activity className="w-4 h-4 text-indigo-600" />
+              <h4 className="text-xs font-bold uppercase text-slate-800">
+                PROSPECTIVE FORECAST TRAJECTORY (NEXT 3–6 HOURS)
+              </h4>
+            </div>
+            {predictionData.max_probability_next_3h !== undefined && (
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-700">
+                PEAK 3H RISK: {Math.round(predictionData.max_probability_next_3h * 100)}%
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-2">
+            {(predictionData.forecast_6h && predictionData.forecast_6h.length > 0 
+              ? predictionData.forecast_6h 
+              : predictionData.forecast_3h
+            ).map((item, idx) => {
+              const itemRisk = getRiskColor(item.risk_level);
+              return (
+                <div 
+                  key={idx} 
+                  className={`p-2.5 rounded-xl border ${item.threshold_crossed ? 'border-rose-300 bg-rose-50/60' : 'border-slate-200 bg-slate-50'} flex flex-col justify-between font-mono`}
+                >
+                  <div className="flex items-center justify-between text-[11px] mb-1">
+                    <span className="font-bold text-slate-700">+{item.hour}h</span>
+                    <span className={`text-[9px] px-1 py-0.2 rounded font-black uppercase ${itemRisk.badge}`}>
+                      {item.risk_level}
+                    </span>
+                  </div>
+                  
+                  <div className="my-1">
+                    <div className="text-base font-black text-slate-900 leading-none">
+                      {item.flood_probability_percent}%
+                    </div>
+                    <div className="text-[9px] text-slate-500 font-sans mt-0.5">flood prob.</div>
+                  </div>
+
+                  <div className="space-y-0.5 pt-1 border-t border-slate-200/60 text-[10px] text-slate-600">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Rain:</span>
+                      <span className="font-semibold text-slate-800">{item.rainfall_mm} mm</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Pop:</span>
+                      <span className="font-semibold text-indigo-600">{Math.round(item.probability_percent)}%</span>
+                    </div>
+                    {item.predicted_river_level_m !== undefined && item.predicted_river_level_m !== null && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Stage:</span>
+                        <span className="font-semibold text-blue-700">{item.predicted_river_level_m.toFixed(2)}m</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Retrospective & Prospective Timeline (Past -> Present -> Future) */}
+      {predictionData.timeline && predictionData.timeline.length > 0 && (
+        <div className="border-t border-slate-100 pt-4 mt-4">
+          <div className="flex items-center justify-between mb-3 font-mono">
+            <div className="flex items-center gap-1.5">
+              <Clock className="w-4 h-4 text-indigo-600" />
+              <h4 className="text-xs font-bold uppercase text-slate-800">
+                TEMPORAL TIMELINE: PAST 6H → LIVE NOW → FUTURE 3H
+              </h4>
+            </div>
+            <span className="text-[10px] text-slate-400 font-semibold font-mono">
+              [Continuous Hydrologic Evolution]
+            </span>
+          </div>
+
+          <div className="overflow-x-auto pb-2">
+            <div className="flex items-stretch gap-2 min-w-[580px]">
+              {predictionData.timeline.map((point, idx) => {
+                const isNow = point.time_label === 'NOW';
+                const pColor = getRiskColor(point.risk_level);
+                return (
+                  <div
+                    key={idx}
+                    className={`flex-1 p-2 rounded-xl border text-center font-mono ${
+                      isNow
+                        ? 'border-indigo-500 bg-indigo-50/70 ring-2 ring-indigo-300'
+                        : 'border-slate-200 bg-slate-50'
+                    }`}
+                  >
+                    <div className={`text-[11px] font-black uppercase ${isNow ? 'text-indigo-700' : 'text-slate-600'}`}>
+                      {point.time_label}
+                    </div>
+                    <div className="text-sm font-black text-slate-900 mt-1">
+                      {point.flood_probability_percent}%
+                    </div>
+                    <div className={`text-[9px] font-bold uppercase px-1 py-0.5 rounded my-1 inline-block ${pColor.badge}`}>
+                      {point.risk_level}
+                    </div>
+                    <div className="text-[9px] text-slate-500 border-t border-slate-200/60 pt-1 mt-1 space-y-0.5">
+                      <div>🌧 {point.rainfall_mm}mm</div>
+                      <div>🌊 {point.river_level_m ? point.river_level_m.toFixed(2) : '-'}m</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Explainability / Contributing Factors */}
-      <div className="border-t border-slate-100 pt-4">
+      <div className="border-t border-slate-100 pt-4 mt-4">
         <div className="flex items-center justify-between mb-3 font-mono">
           <div className="flex items-center gap-1.5">
             <BarChart3 className="w-4 h-4 text-indigo-600" />

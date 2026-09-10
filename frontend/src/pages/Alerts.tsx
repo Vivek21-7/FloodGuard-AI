@@ -7,9 +7,11 @@ import {
   Radio, 
   AlertOctagon,
   Building,
-  FileText
+  FileText,
+  Phone
 } from 'lucide-react';
 import { PredictResponse, RiskLevel } from '../types';
+import { AlertDispatcherModal } from '../components/AlertDispatcherModal';
 
 interface AlertsPageProps {
   predictionData: PredictResponse | null;
@@ -81,7 +83,7 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({
   selectedLocation
 }) => {
   const [activeTabFilter, setActiveTabFilter] = useState<'ALL' | 'HIGH_CRITICAL' | 'MODERATE'>('ALL');
-  const [broadcastSent, setBroadcastSent] = useState(false);
+  const [isDispatcherOpen, setIsDispatcherOpen] = useState(false);
 
   const filteredAlerts = REGIONAL_ALERTS.filter(alert => {
     if (activeTabFilter === 'HIGH_CRITICAL') {
@@ -92,11 +94,6 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({
     }
     return true;
   });
-
-  const handleSimulateBroadcast = () => {
-    setBroadcastSent(true);
-    setTimeout(() => setBroadcastSent(false), 4000);
-  };
 
   return (
     <div className="py-6 space-y-8">
@@ -144,11 +141,11 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({
             </div>
 
             <button
-              onClick={handleSimulateBroadcast}
-              className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-2 transition-all shadow-xs active:scale-95"
+              onClick={() => setIsDispatcherOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-2 transition-all shadow-xs active:scale-95 font-mono"
             >
               <Radio className="w-4 h-4" />
-              <span>{broadcastSent ? 'Emergency SMS & Siren Dispatched!' : 'Simulate CAP Alert Broadcast'}</span>
+              <span>Broadcast SMS / Email Alert (CAP)</span>
             </button>
           </div>
 
@@ -319,6 +316,14 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Automated Multi-Channel Emergency Dispatcher Modal (7C: Communication) */}
+      <AlertDispatcherModal
+        isOpen={isDispatcherOpen}
+        onClose={() => setIsDispatcherOpen(false)}
+        predictionData={predictionData}
+        selectedLocation={selectedLocation}
+      />
     </div>
   );
 };
