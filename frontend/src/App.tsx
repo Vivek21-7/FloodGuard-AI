@@ -11,7 +11,6 @@ import { UserProfileModal } from './components/UserProfileModal';
 import { LiveMapTab } from './pages/LiveMapTab';
 import { FloodAlertsTab } from './pages/FloodAlertsTab';
 import { AnalyticsTab } from './pages/AnalyticsTab';
-import { AffectedAreasTab } from './pages/AffectedAreasTab';
 import { SettingsTab } from './pages/SettingsTab';
 
 import { api } from './services/api';
@@ -269,17 +268,7 @@ export const App: React.FC = () => {
             />
           )}
 
-          {/* TAB 4: Affected Areas */}
-          {activeTab === 'affected' && (
-            <AffectedAreasTab
-              onSelectAreaLocation={(lat, lon, name) => {
-                handleSelectLocation(lat, lon, name);
-                setActiveTab('map');
-              }}
-            />
-          )}
-
-          {/* TAB 5: Settings */}
+          {/* TAB 4: Settings */}
           {activeTab === 'settings' && (
             <SettingsTab />
           )}

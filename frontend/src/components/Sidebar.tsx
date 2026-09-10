@@ -3,7 +3,6 @@ import {
   Map, 
   AlertTriangle, 
   BarChart3, 
-  Building2, 
   Settings, 
   ShieldAlert, 
   Radio, 
@@ -13,7 +12,7 @@ import {
   Activity
 } from 'lucide-react';
 
-export type TabId = 'map' | 'alerts' | 'analytics' | 'affected' | 'settings';
+export type TabId = 'map' | 'alerts' | 'analytics' | 'settings';
 
 interface SidebarProps {
   activeTab: TabId;
@@ -43,13 +42,6 @@ const MENU_ITEMS = [
     id: 'analytics' as TabId,
     label: 'Analytics',
     icon: BarChart3,
-  },
-  {
-    id: 'affected' as TabId,
-    label: 'Affected Areas',
-    icon: Building2,
-    badge: '11 Towns',
-    badgeColor: 'bg-amber-50 text-amber-800 border border-amber-200',
   },
   {
     id: 'settings' as TabId,
