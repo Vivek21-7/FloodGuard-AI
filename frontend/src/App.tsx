@@ -5,6 +5,7 @@ import { SitrepModal } from './components/SitrepModal';
 import { AlertDispatcherModal } from './components/AlertDispatcherModal';
 import { CitizenReportModal } from './components/CitizenReportModal';
 import { UserProfileModal } from './components/UserProfileModal';
+import { VoiceAssistant } from './components/VoiceAssistant';
 
 // Tabs
 import { LiveMapTab } from './pages/LiveMapTab';
@@ -303,6 +304,14 @@ export const App: React.FC = () => {
           setIsUserProfileOpen(false);
           setIsSitrepOpen(true);
         }}
+      />
+
+      {/* FloodGuard AI Voice Assistant Floating Button & Chat Panel */}
+      <VoiceAssistant
+        onSelectLocation={handleSelectLocation}
+        predictionData={predictionData}
+        isLoading={isLoading}
+        selectedLocationName={selectedLocation.name}
       />
     </div>
   );
