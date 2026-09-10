@@ -27,12 +27,14 @@ import {
   RefreshCw,
   ArrowLeft,
   Flame,
-  Droplets,
-  Activity,
-  Loader2,
-  X
+  Activity, 
+  Loader2, 
+  X,
+  PhoneCall,
+  Phone
 } from 'lucide-react';
 import { PredictResponse, RiskLevel, LocationResult } from '../types';
+import { getEmergencyHelplinesForLocation } from '../services/emergencyService';
 
 interface LiveMapTabProps {
   selectedLocation: { latitude: number; longitude: number; name?: string };
@@ -41,6 +43,7 @@ interface LiveMapTabProps {
   isLoading: boolean;
   onSearchQuery?: (q: string) => Promise<LocationResult[]>;
   onOpenAlertDispatcher?: () => void;
+  onOpenEmergencyDirectory?: () => void;
 }
 
 // Controller to smoothly pan to selected location with adaptive zoom
@@ -370,13 +373,19 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
   predictionData,
   isLoading,
   onSearchQuery,
-  onOpenAlertDispatcher
+  onOpenAlertDispatcher,
+  onOpenEmergencyDirectory
 }) => {
   const [showZones, setShowZones] = useState(true);
   const [showStations, setShowStations] = useState(true);
   const [showShelters, setShowShelters] = useState(true);
   const [showIncidents, setShowIncidents] = useState(true);
   const [isSideCardExpanded, setIsSideCardExpanded] = useState(true);
+
+  // 🚨 Real-time location-aware emergency disaster helplines
+  const helplines = React.useMemo(() => {
+    return getEmergencyHelplinesForLocation(selectedLocation.name, selectedLocation.latitude, selectedLocation.longitude);
+  }, [selectedLocation.name, selectedLocation.latitude, selectedLocation.longitude]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [remoteResults, setRemoteResults] = useState<LocationResult[]>([]);
@@ -871,6 +880,16 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
             <Activity className="w-3.5 h-3.5" />
             <span>{isSideCardExpanded ? 'Hide Monitoring' : 'Open Monitoring'}</span>
           </button>
+          {onOpenEmergencyDirectory && (
+            <button
+              onClick={onOpenEmergencyDirectory}
+              className="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold border border-rose-200 transition-all flex items-center gap-1 cursor-pointer shadow-2xs"
+              title="Open 24/7 National & State Disaster Helplines Directory"
+            >
+              <PhoneCall className="w-3 h-3 text-rose-600 animate-pulse" />
+              <span>🚨 Helplines (112)</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -945,6 +964,57 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
                   {isPanIndia ? (riskLevel === 'HIGH' || riskLevel === 'CRITICAL' ? 'Active Influx Belts' : 'All Basins Normal') : (selectedLocation.name || 'Local Catchment')}
                 </span>
               </div>
+            </div>
+
+            {/* 🚨 Emergency Helplines & Disaster Desk for Selected Area */}
+            <div className={`p-3 rounded-2xl border transition-all ${
+              riskLevel === 'HIGH' || riskLevel === 'CRITICAL'
+                ? 'bg-rose-50/90 border-rose-300 shadow-xs'
+                : 'bg-slate-50 border-slate-200'
+            }`}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <PhoneCall className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
+                  <span className="text-[11px] font-bold text-slate-900 font-sans">
+                    {helplines.matchedState} Helplines
+                  </span>
+                </div>
+                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 font-bold border border-rose-200">
+                  24/7 RESCUE
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                {helplines.contacts.slice(0, 3).map((contact, cIdx) => (
+                  <div key={cIdx} className="flex items-center justify-between bg-white p-1.5 px-2 rounded-xl border border-slate-200 text-xs">
+                    <span className="text-slate-800 font-medium text-[11px] truncate max-w-[160px] font-sans">
+                      {contact.label}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      {contact.numbers.slice(0, 2).map((num, nIdx) => (
+                        <a
+                          key={nIdx}
+                          href={`tel:${num.replace(/[^0-9+]/g, '')}`}
+                          className="px-2 py-0.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-mono font-black text-[10px] flex items-center gap-1 shadow-2xs transition-all active:scale-95"
+                          title={`Dial ${contact.label}: ${num}`}
+                        >
+                          <Phone className="w-2.5 h-2.5" />
+                          <span>{num}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {onOpenEmergencyDirectory && (
+                <button
+                  onClick={onOpenEmergencyDirectory}
+                  className="w-full mt-2 py-1 text-center text-[10px] text-rose-700 hover:text-rose-900 font-mono font-bold flex items-center justify-center gap-1 hover:underline cursor-pointer"
+                >
+                  <span>View All National & District Helplines →</span>
+                </button>
+              )}
             </div>
 
             {/* 3-Hour Forward Early Warning Progression Cards */}

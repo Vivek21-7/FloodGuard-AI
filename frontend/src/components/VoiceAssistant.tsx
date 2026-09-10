@@ -14,11 +14,14 @@ import {
   CheckCircle2, 
   MapPin,
   RefreshCw,
-  HelpCircle
+  HelpCircle,
+  PhoneCall,
+  Phone
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import { PredictResponse, RiskLevel } from '../types';
+import { getEmergencyHelplinesForLocation } from '../services/emergencyService';
 
 export interface VoiceAssistantProps {
   onSelectLocation: (lat: number, lon: number, name?: string) => void;
@@ -732,6 +735,42 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({
                           <span className="font-bold text-slate-900 text-xs">{msg.predictionCard.leadTime} Mins</span>
                         </div>
                       </div>
+
+                      {/* 🚨 Emergency Helplines for this Searched Location */}
+                      {(() => {
+                        const hl = getEmergencyHelplinesForLocation(
+                          msg.predictionCard.locationName,
+                          msg.predictionCard.latitude,
+                          msg.predictionCard.longitude
+                        );
+                        return (
+                          <div className="p-2 bg-rose-50/80 rounded-xl border border-rose-100 flex items-center justify-between gap-1 text-[10px]">
+                            <span className="font-bold text-rose-900 flex items-center gap-1 truncate font-sans">
+                              <PhoneCall className="w-3 h-3 text-rose-600 animate-pulse shrink-0" />
+                              <span className="truncate">{hl.matchedState} Desk:</span>
+                            </span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              {hl.contacts.length > 0 && hl.contacts[0].numbers[0] && (
+                                <a
+                                  href={`tel:${hl.contacts[0].numbers[0].replace(/[^0-9+]/g, '')}`}
+                                  className="px-2 py-0.5 rounded-md bg-white border border-rose-300 text-rose-700 font-mono font-bold hover:bg-rose-600 hover:text-white transition-all flex items-center gap-0.5 shadow-2xs"
+                                  title={`Call ${hl.contacts[0].label}`}
+                                >
+                                  <Phone className="w-2.5 h-2.5" />
+                                  <span>{hl.contacts[0].numbers[0]}</span>
+                                </a>
+                              )}
+                              <a
+                                href="tel:112"
+                                className="px-2 py-0.5 rounded-md bg-rose-600 text-white font-mono font-black hover:bg-rose-700 transition-all flex items-center gap-0.5 shadow-2xs"
+                                title="Call 112"
+                              >
+                                <span>112</span>
+                              </a>
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       {/* Card Action Button: Repeat Speech */}
                       <div className="flex items-center justify-between pt-1">

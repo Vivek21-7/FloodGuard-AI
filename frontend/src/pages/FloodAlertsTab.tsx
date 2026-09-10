@@ -5,13 +5,16 @@ import {
   CheckCircle2,
   Clock, 
   ShieldAlert, 
-  Navigation, 
   RefreshCw, 
   Activity, 
-  Cpu 
+  Cpu,
+  Navigation,
+  PhoneCall,
+  Phone
 } from 'lucide-react';
 import { PredictResponse, RiskLevel } from '../types';
 import { api } from '../services/api';
+import { getEmergencyHelplinesForLocation } from '../services/emergencyService';
 
 interface FloodAlertsTabProps {
   predictionData: PredictResponse | null;
@@ -19,6 +22,7 @@ interface FloodAlertsTabProps {
   onNavigateToMap?: () => void;
   onOpenDispatcher?: () => void;
   onSelectCityLocation?: (lat: number, lon: number, name: string) => void;
+  onOpenEmergencyDirectory?: () => void;
 }
 
 interface CityLivePrediction {
@@ -45,6 +49,7 @@ export const FloodAlertsTab: React.FC<FloodAlertsTabProps> = ({
   onNavigateToMap,
   onOpenDispatcher,
   onSelectCityLocation,
+  onOpenEmergencyDirectory,
 }) => {
   const [filter, setFilter] = useState<'ALL' | 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW'>('ALL');
   const [citiesData, setCitiesData] = useState<CityLivePrediction[]>([]);
@@ -279,6 +284,40 @@ export const FloodAlertsTab: React.FC<FloodAlertsTabProps> = ({
                       <strong className="text-blue-900">AI Directive:</strong> {city.message}
                     </div>
                   </div>
+
+                  {/* 🚨 Emergency Helpline Strip for this Location */}
+                  {(() => {
+                    const cityHelplines = getEmergencyHelplinesForLocation(city.name, city.latitude, city.longitude);
+                    return (
+                      <div className="p-2.5 bg-rose-50/70 border border-rose-200/80 rounded-xl flex flex-wrap items-center justify-between gap-2 text-[11px] font-sans">
+                        <div className="flex items-center gap-1.5 text-rose-900 font-bold">
+                          <PhoneCall className="w-3.5 h-3.5 text-rose-600 animate-pulse shrink-0" />
+                          <span>{cityHelplines.matchedState} Helplines:</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {cityHelplines.contacts.slice(0, 2).map((contact, cIdx) => (
+                            <a
+                              key={cIdx}
+                              href={`tel:${contact.numbers[0].replace(/[^0-9+]/g, '')}`}
+                              className="px-2 py-0.5 rounded-md bg-white border border-rose-300 text-rose-700 font-mono font-bold hover:bg-rose-600 hover:text-white transition-all flex items-center gap-1 shadow-2xs"
+                              title={`Call ${contact.label}: ${contact.numbers[0]}`}
+                            >
+                              <Phone className="w-2.5 h-2.5" />
+                              <span>{contact.label.split(' ')[0]}: {contact.numbers[0]}</span>
+                            </a>
+                          ))}
+                          <a
+                            href="tel:112"
+                            className="px-2.5 py-0.5 rounded-md bg-rose-600 text-white font-mono font-black hover:bg-rose-700 transition-all flex items-center gap-1 shadow-2xs"
+                            title="Call All-in-One National Emergency 112"
+                          >
+                            <Phone className="w-2.5 h-2.5" />
+                            <span>112</span>
+                          </a>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* Quick Action Footer */}
                   <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">

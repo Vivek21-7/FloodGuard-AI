@@ -7,9 +7,9 @@ import {
   Radio, 
   Search, 
   FileText, 
-  ChevronDown,
   ShieldCheck,
-  Compass
+  Compass,
+  PhoneCall
 } from 'lucide-react';
 
 interface HeaderBarProps {
@@ -22,6 +22,7 @@ interface HeaderBarProps {
   onToggleDemoMode: () => void;
   onOpenSitrep?: () => void;
   onUseMyLocation?: () => void;
+  onOpenEmergencyDirectory?: () => void;
 }
 
 const PRESET_LOCATIONS = [
@@ -45,6 +46,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   onToggleDemoMode,
   onOpenSitrep,
   onUseMyLocation,
+  onOpenEmergencyDirectory,
 }) => {
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
@@ -170,11 +172,23 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           </button>
         )}
 
+        {/* Emergency Helplines 112 Directory Button */}
+        {onOpenEmergencyDirectory && (
+          <button
+            onClick={onOpenEmergencyDirectory}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+            title="Open 24/7 National & State Disaster Helplines Directory"
+          >
+            <PhoneCall className="w-3.5 h-3.5 text-white animate-pulse" />
+            <span className="hidden sm:inline">🚨 Helplines</span>
+          </button>
+        )}
+
         {/* Official SITREP Modal Button */}
         {onOpenSitrep && (
           <button
             onClick={onOpenSitrep}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white text-xs font-bold transition-all shadow-sm shadow-rose-600/20"
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm"
             title="Generate Official Incident Situation Report"
           >
             <FileText className="w-3.5 h-3.5 text-white" />

@@ -5,6 +5,7 @@ import { SitrepModal } from './components/SitrepModal';
 import { AlertDispatcherModal } from './components/AlertDispatcherModal';
 import { CitizenReportModal } from './components/CitizenReportModal';
 import { UserProfileModal } from './components/UserProfileModal';
+import { EmergencyDirectoryModal } from './components/EmergencyDirectoryModal';
 import { VoiceAssistant } from './components/VoiceAssistant';
 
 // Tabs
@@ -71,6 +72,7 @@ export const App: React.FC = () => {
   const [isDispatcherOpen, setIsDispatcherOpen] = useState<boolean>(false);
   const [isCitizenReportOpen, setIsCitizenReportOpen] = useState<boolean>(false);
   const [isUserProfileOpen, setIsUserProfileOpen] = useState<boolean>(false);
+  const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState<boolean>(false);
 
   // Load telemetry & run prediction for the active coordinate
   const loadLocationData = useCallback(async (
@@ -201,6 +203,7 @@ export const App: React.FC = () => {
         isMobileOpen={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
         onOpenProfile={() => setIsUserProfileOpen(true)}
+        onOpenEmergencyDirectory={() => setIsEmergencyModalOpen(true)}
       />
 
       {/* 2. Main Content Area (Remaining space) */}
@@ -216,6 +219,7 @@ export const App: React.FC = () => {
           onToggleDemoMode={() => setIsDemoMode(!isDemoMode)}
           onOpenSitrep={() => setIsSitrepOpen(true)}
           onUseMyLocation={handleUseMyLocation}
+          onOpenEmergencyDirectory={() => setIsEmergencyModalOpen(true)}
         />
 
         {/* Dynamic Content Container (switches based on sidebar selection with 300ms transition) */}
@@ -236,6 +240,7 @@ export const App: React.FC = () => {
               isLoading={isLoading}
               onSearchQuery={handleSearchQuery}
               onOpenAlertDispatcher={() => setIsDispatcherOpen(true)}
+              onOpenEmergencyDirectory={() => setIsEmergencyModalOpen(true)}
             />
           )}
 
@@ -250,6 +255,7 @@ export const App: React.FC = () => {
                 handleSelectLocation(lat, lon, name);
                 setActiveTab('map');
               }}
+              onOpenEmergencyDirectory={() => setIsEmergencyModalOpen(true)}
             />
           )}
 
@@ -304,6 +310,13 @@ export const App: React.FC = () => {
           setIsUserProfileOpen(false);
           setIsSitrepOpen(true);
         }}
+      />
+
+      {/* 24/7 National & State Disaster Helplines Directory Modal */}
+      <EmergencyDirectoryModal
+        isOpen={isEmergencyModalOpen}
+        onClose={() => setIsEmergencyModalOpen(false)}
+        selectedLocationName={selectedLocation.name}
       />
 
       {/* FloodGuard AI Voice Assistant Floating Button & Chat Panel */}

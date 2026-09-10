@@ -6,7 +6,8 @@ import {
   Settings, 
   ShieldAlert, 
   X,
-  Radio
+  Radio,
+  PhoneCall
 } from 'lucide-react';
 
 export type TabId = 'map' | 'alerts' | 'analytics' | 'settings';
@@ -18,6 +19,7 @@ interface SidebarProps {
   isMobileOpen: boolean;
   onCloseMobile: () => void;
   onOpenProfile?: () => void;
+  onOpenEmergencyDirectory?: () => void;
 }
 
 const MENU_ITEMS = [
@@ -54,6 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen,
   onCloseMobile,
   onOpenProfile,
+  onOpenEmergencyDirectory,
 }) => {
   return (
     <>
@@ -159,6 +162,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
               );
             })}
           </nav>
+
+          {/* Quick Helplines Trigger */}
+          {onOpenEmergencyDirectory && (
+            <div className="p-2 pt-3 border-t border-slate-100">
+              <button
+                onClick={() => {
+                  onOpenEmergencyDirectory();
+                  onCloseMobile();
+                }}
+                className="w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-all group shadow-2xs cursor-pointer active:scale-95"
+                title="24/7 National & State Disaster Helplines"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-1.5 rounded-lg bg-rose-600 text-white shadow-xs">
+                    <PhoneCall className="w-4 h-4 animate-pulse" />
+                  </div>
+                  <span className="hidden lg:inline md:hidden text-[13px] font-sans">
+                    Emergency 112
+                  </span>
+                </div>
+                <span className="hidden lg:inline md:hidden text-[9px] font-mono px-1.5 py-0.5 rounded bg-rose-200/80 text-rose-900 font-black">
+                  HOTLINES
+                </span>
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </>
