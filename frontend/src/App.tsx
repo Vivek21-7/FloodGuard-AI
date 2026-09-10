@@ -7,6 +7,7 @@ import { CitizenReportModal } from './components/CitizenReportModal';
 import { UserProfileModal } from './components/UserProfileModal';
 import { EmergencyDirectoryModal } from './components/EmergencyDirectoryModal';
 import { VoiceAssistant } from './components/VoiceAssistant';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Tabs
 import { LiveMapTab } from './pages/LiveMapTab';
@@ -237,54 +238,56 @@ export const App: React.FC = () => {
 
         {/* Dynamic Content Container (switches based on sidebar selection with 300ms transition) */}
         <main className="flex-1 overflow-y-auto bg-gradient-to-br from-[#f4f7fb] via-[#eef3f9] to-[#f7f9fc] tab-content-active transition-all duration-300">
-          {networkError && (
-            <div className="m-4 bg-amber-50 border border-amber-200 text-amber-900 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 font-mono">
-              <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
-              <span>{networkError}</span>
-            </div>
-          )}
+          <ErrorBoundary key={activeTab} fallbackTitle="FloodGuard Operational Dashboard">
+            {networkError && (
+              <div className="m-4 bg-amber-50 border border-amber-200 text-amber-900 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 font-mono">
+                <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                <span>{networkError}</span>
+              </div>
+            )}
 
-          {/* TAB 1: Live Map (Default / Full-screen interactive Leaflet map) */}
-          {activeTab === 'map' && (
-            <LiveMapTab
-              selectedLocation={selectedLocation}
-              onSelectLocation={handleSelectLocation}
-              predictionData={predictionData}
-              isLoading={isLoading}
-              onSearchQuery={handleSearchQuery}
-              onOpenAlertDispatcher={() => setIsDispatcherOpen(true)}
-              onOpenEmergencyDirectory={() => setIsEmergencyModalOpen(true)}
-            />
-          )}
+            {/* TAB 1: Live Map (Default / Full-screen interactive Leaflet map) */}
+            {activeTab === 'map' && (
+              <LiveMapTab
+                selectedLocation={selectedLocation}
+                onSelectLocation={handleSelectLocation}
+                predictionData={predictionData}
+                isLoading={isLoading}
+                onSearchQuery={handleSearchQuery}
+                onOpenAlertDispatcher={() => setIsDispatcherOpen(true)}
+                onOpenEmergencyDirectory={() => setIsEmergencyModalOpen(true)}
+              />
+            )}
 
-          {/* TAB 2: Flood Alerts */}
-          {activeTab === 'alerts' && (
-            <FloodAlertsTab
-              predictionData={predictionData}
-              selectedLocation={selectedLocation}
-              onNavigateToMap={() => setActiveTab('map')}
-              onOpenDispatcher={() => setIsDispatcherOpen(true)}
-              onSelectCityLocation={(lat, lon, name) => {
-                handleSelectLocation(lat, lon, name);
-                setActiveTab('map');
-              }}
-              onOpenEmergencyDirectory={() => setIsEmergencyModalOpen(true)}
-            />
-          )}
+            {/* TAB 2: Flood Alerts */}
+            {activeTab === 'alerts' && (
+              <FloodAlertsTab
+                predictionData={predictionData}
+                selectedLocation={selectedLocation}
+                onNavigateToMap={() => setActiveTab('map')}
+                onOpenDispatcher={() => setIsDispatcherOpen(true)}
+                onSelectCityLocation={(lat, lon, name) => {
+                  handleSelectLocation(lat, lon, name);
+                  setActiveTab('map');
+                }}
+                onOpenEmergencyDirectory={() => setIsEmergencyModalOpen(true)}
+              />
+            )}
 
-          {/* TAB 3: Analytics */}
-          {activeTab === 'analytics' && (
-            <AnalyticsTab
-              predictionData={predictionData}
-              modelInfo={modelInfo}
-              historicalEvents={historicalEvents}
-            />
-          )}
+            {/* TAB 3: Analytics */}
+            {activeTab === 'analytics' && (
+              <AnalyticsTab
+                predictionData={predictionData}
+                modelInfo={modelInfo}
+                historicalEvents={historicalEvents}
+              />
+            )}
 
-          {/* TAB 4: Settings */}
-          {activeTab === 'settings' && (
-            <SettingsTab />
-          )}
+            {/* TAB 4: Settings */}
+            {activeTab === 'settings' && (
+              <SettingsTab />
+            )}
+          </ErrorBoundary>
         </main>
       </div>
 
