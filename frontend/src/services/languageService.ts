@@ -48,6 +48,7 @@ export const languageService = {
    * Persist user's selected language and sync with Google Translate cookies
    */
   setLanguage(langCode: string, reloadIfNeeded: boolean = false): void {
+    const prevLang = this.getCurrentLanguage();
     if (!SUPPORTED_LANGUAGES.some((l) => l.code === langCode)) {
       langCode = 'en';
     }
@@ -63,6 +64,12 @@ export const languageService = {
 
     // Synchronize Google Translate cookie (googtrans)
     this.syncGoogleTranslateCookie(langCode);
+
+    // If switching back to English from a translated state, reload to restore pristine English DOM
+    if (langCode === 'en' && (prevLang !== 'en' || document.querySelector('.goog-te-combo'))) {
+      window.location.reload();
+      return;
+    }
 
     // Trigger Google Translate DOM element if initialized
     this.triggerGoogleTranslateCombo(langCode);
