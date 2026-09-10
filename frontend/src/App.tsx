@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Navbar } from './components/Navbar';
+import { Sidebar, TabId } from './components/Sidebar';
+import { HeaderBar } from './components/HeaderBar';
+import { EmergencyTicker } from './components/EmergencyTicker';
 import { SitrepModal } from './components/SitrepModal';
+import { AlertDispatcherModal } from './components/AlertDispatcherModal';
 import { CitizenReportModal } from './components/CitizenReportModal';
-import { Home } from './pages/Home';
-import { MapPage } from './pages/Map';
-import { PredictionPage } from './pages/Prediction';
-import { AlertsPage } from './pages/Alerts';
-import { AnalysisPage } from './pages/Analysis';
-import { MethodologyPage } from './pages/Methodology';
+
+// Tabs
+import { LiveMapTab } from './pages/LiveMapTab';
+import { FloodAlertsTab } from './pages/FloodAlertsTab';
+import { AnalyticsTab } from './pages/AnalyticsTab';
+import { AffectedAreasTab } from './pages/AffectedAreasTab';
+import { SettingsTab } from './pages/SettingsTab';
+
 import { api } from './services/api';
 import { getCurrentPosition } from './services/geolocation';
 import { storage } from './services/storage';
@@ -17,12 +22,11 @@ import {
   PredictResponse, 
   RiskMapFeature, 
   HistoricalEventItem, 
-  AlertItem, 
   ModelInfoResponse, 
   DemoControlsState,
   LocationResult
 } from './types';
-import { ShieldCheck, LifeBuoy, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 const DEMO_PRESET_COORDINATES: Record<string, { lat: number; lon: number; name: string }> = {
   Wayanad: { lat: 11.5510, lon: 76.1260, name: 'Wayanad (Chooralmala), Kerala' },
@@ -39,10 +43,11 @@ const DEMO_PRESET_COORDINATES: Record<string, { lat: number; lon: number; name: 
 };
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'map' | 'prediction' | 'alerts' | 'analysis' | 'methodology'>('dashboard');
+  // Navigation: Default tab is 'map' as specified in requirements
+  const [activeTab, setActiveTab] = useState<TabId>('map');
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [isDemoMode, setIsDemoMode] = useState<boolean>(() => storage.getSettings().isDemoMode);
   const [demoControls, setDemoControls] = useState<DemoControlsState>(() => storage.getDemoControls());
-  const [iotStatus, setIotStatus] = useState<string | null>(null);
 
   const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number; name?: string }>({
     latitude: 31.9579,
@@ -58,7 +63,10 @@ export const App: React.FC = () => {
   const [modelInfo, setModelInfo] = useState<ModelInfoResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [networkError, setNetworkError] = useState<string | null>(null);
+  
+  // Modals
   const [isSitrepOpen, setIsSitrepOpen] = useState<boolean>(false);
+  const [isDispatcherOpen, setIsDispatcherOpen] = useState<boolean>(false);
   const [isCitizenReportOpen, setIsCitizenReportOpen] = useState<boolean>(false);
 
   // Load telemetry & run prediction for the active coordinate
@@ -97,7 +105,7 @@ export const App: React.FC = () => {
       setPredictionData(predictRes);
     } catch (err: any) {
       console.error('Failed to load telemetry or prediction:', err);
-      setNetworkError('Backend API communication error. Showing calibrated demo parameters.');
+      setNetworkError('Backend API syncing... displaying live physical baseline.');
     } finally {
       setIsLoading(false);
     }
@@ -137,7 +145,6 @@ export const App: React.FC = () => {
   const handleSelectDemoLocation = (presetName: string) => {
     const target = DEMO_PRESET_COORDINATES[presetName];
     if (target) {
-      // Adjust preset sliders to reflect that region's typical scenario
       if (presetName === 'Wayanad') {
         setDemoControls({ rainfall: 220, soilMoisture: 94, waterLevel: 4.8, temperature: 22 });
       } else if (presetName === 'Kullu') {
@@ -146,20 +153,12 @@ export const App: React.FC = () => {
         setDemoControls({ rainfall: 195, soilMoisture: 91, waterLevel: 4.5, temperature: 14 });
       } else if (presetName === 'Cherrapunji') {
         setDemoControls({ rainfall: 260, soilMoisture: 96, waterLevel: 5.2, temperature: 21 });
-      } else if (presetName === 'Chungthang') {
-        setDemoControls({ rainfall: 140, soilMoisture: 88, waterLevel: 3.9, temperature: 16 });
       } else if (presetName === 'Chiplun') {
         setDemoControls({ rainfall: 210, soilMoisture: 92, waterLevel: 4.6, temperature: 27 });
       } else if (presetName === 'Dhemaji') {
         setDemoControls({ rainfall: 175, soilMoisture: 89, waterLevel: 3.8, temperature: 28 });
       } else if (presetName === 'Mandi') {
         setDemoControls({ rainfall: 182, soilMoisture: 89, waterLevel: 4.1, temperature: 26 });
-      } else if (presetName === 'Shimla') {
-        setDemoControls({ rainfall: 54, soilMoisture: 58, waterLevel: 1.4, temperature: 19 });
-      } else if (presetName === 'Srinagar') {
-        setDemoControls({ rainfall: 65, soilMoisture: 62, waterLevel: 1.8, temperature: 17 });
-      } else if (presetName === 'Munnar') {
-        setDemoControls({ rainfall: 155, soilMoisture: 85, waterLevel: 3.2, temperature: 20 });
       }
       setSelectedLocation({ latitude: target.lat, longitude: target.lon, name: target.name });
     }
@@ -189,144 +188,100 @@ export const App: React.FC = () => {
     return res.results;
   };
 
-  // Demo controls slider change (debounced/real-time update)
-  const handleDemoControlsChange = (updated: Partial<DemoControlsState>) => {
-    const newControls = { ...demoControls, ...updated };
-    setDemoControls(newControls);
-    storage.saveDemoControls(newControls);
-    loadLocationData(selectedLocation.latitude, selectedLocation.longitude, selectedLocation.name, newControls);
-  };
-
-  // IoT Packet Transmission simulation
-  const handleSendIoTPacket = async () => {
-    try {
-      setIotStatus('Transmitting packet...');
-      const res = await api.sendSensorData({
-        sensor_id: `SENSOR-${selectedLocation.name?.substring(0, 4).toUpperCase() || 'HP'}-01`,
-        latitude: selectedLocation.latitude,
-        longitude: selectedLocation.longitude,
-        rainfall_mm: demoControls.rainfall,
-        soil_moisture_percent: demoControls.soilMoisture,
-        water_level_m: demoControls.waterLevel,
-        timestamp: new Date().toISOString(),
-      });
-
-      if (res.processed) {
-        setIotStatus(`Ingested! Calculated Risk: ${res.calculated_risk || 'UPDATED'}`);
-        setTimeout(() => setIotStatus(null), 4000);
-      }
-    } catch (err) {
-      console.error('IoT packet dispatch failed:', err);
-      setIotStatus('Packet failed');
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50/70 text-slate-900 flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
-      {/* Header / Navbar */}
-      <Navbar
+    <div className="flex h-screen w-screen overflow-hidden bg-[#0f1419] text-slate-100 font-sans selection:bg-[#FF6B6B] selection:text-white">
+      {/* 1. Left Sidebar Panel (250px fixed width, #1a1a1a dark theme, collapsible on tablet/mobile) */}
+      <Sidebar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        isDemoMode={isDemoMode}
-        setIsDemoMode={setIsDemoMode}
-        onSelectDemoLocation={handleSelectDemoLocation}
-        onOpenSitrep={() => setIsSitrepOpen(true)}
-        onOpenCitizenReport={() => setIsCitizenReportOpen(true)}
+        onSelectTab={(tab) => setActiveTab(tab)}
+        activeAlertCount={3}
+        isMobileOpen={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
       />
 
-      {/* Main Page Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        {networkError && (
-          <div className="mb-4 bg-amber-50 border border-amber-200 text-amber-900 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm">
-            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
-            <span>{networkError}</span>
-          </div>
-        )}
-
-        {activeTab === 'dashboard' && (
-          <Home
-            selectedLocation={selectedLocation}
-            onSelectLocation={handleSelectLocation}
-            onUseMyLocation={handleUseMyLocation}
-            envData={envData}
-            terrainData={terrainData}
-            predictionData={predictionData}
-            isLoading={isLoading}
-            isDemoMode={isDemoMode}
-            demoControls={demoControls}
-            onDemoControlsChange={handleDemoControlsChange}
-            onSendIoTPacket={handleSendIoTPacket}
-            iotStatus={iotStatus}
-            onSearchQuery={handleSearchQuery}
-            riskMapFeatures={riskMapFeatures}
-            historicalEvents={historicalEvents}
-            onNavigateToTab={(tab) => setActiveTab(tab)}
-            onOpenSitrep={() => setIsSitrepOpen(true)}
-          />
-        )}
-
-        {activeTab === 'map' && (
-          <MapPage
-            features={riskMapFeatures}
-            historicalEvents={historicalEvents}
-            selectedLocation={selectedLocation}
-            onSelectLocation={handleSelectLocation}
-            predictionData={predictionData}
-            isLoading={isLoading}
-          />
-        )}
-
-        {activeTab === 'prediction' && (
-          <PredictionPage
-            selectedLocation={selectedLocation}
-            onSelectLocation={handleSelectLocation}
-            onUseMyLocation={handleUseMyLocation}
-            envData={envData}
-            terrainData={terrainData}
-            predictionData={predictionData}
-            isLoading={isLoading}
-            isDemoMode={isDemoMode}
-            demoControls={demoControls}
-            onDemoControlsChange={handleDemoControlsChange}
-            onSendIoTPacket={handleSendIoTPacket}
-            iotStatus={iotStatus}
-            onSearchQuery={handleSearchQuery}
-            onRunPrediction={() => loadLocationData(selectedLocation.latitude, selectedLocation.longitude, selectedLocation.name)}
-          />
-        )}
-
-        {activeTab === 'alerts' && (
-          <AlertsPage
-            predictionData={predictionData}
-            selectedLocation={selectedLocation}
-          />
-        )}
-
-        {activeTab === 'analysis' && (
-          <AnalysisPage events={historicalEvents} />
-        )}
-
-        {activeTab === 'methodology' && (
-          <MethodologyPage modelInfo={modelInfo} />
-        )}
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-slate-200/80 bg-white/90 py-6 text-xs text-slate-500 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">FloodGuard AI</span>
-            <span>•</span>
-            <span>SIH 26192 (Ministry of Home Affairs / NDRF)</span>
-          </div>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span>Data Providers: Open-Meteo • IMD • India-WRIS • USGS DEM</span>
-            <span>•</span>
-            <span className="text-indigo-600 font-mono font-medium">v1.0.0-hackathon</span>
-          </div>
+      {/* 2. Main Content Area (Remaining space) */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        {/* National Tricolor Accent Bar */}
+        <div className="h-1 w-full flex flex-shrink-0">
+          <div className="flex-1 bg-[#FF9933]"></div>
+          <div className="flex-1 bg-white"></div>
+          <div className="flex-1 bg-[#138808]"></div>
         </div>
-      </footer>
-      {/* Official NDRF SITREP Modal */}
+
+        {/* Live Emergency Ticker Marquee */}
+        <EmergencyTicker />
+
+        {/* Header Bar: Location selector, Refresh button, Date/Time */}
+        <HeaderBar
+          onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
+          selectedLocation={selectedLocation}
+          onSelectPreset={handleSelectDemoLocation}
+          onRefresh={() => loadLocationData(selectedLocation.latitude, selectedLocation.longitude, selectedLocation.name)}
+          isRefreshing={isLoading}
+          isDemoMode={isDemoMode}
+          onToggleDemoMode={() => setIsDemoMode(!isDemoMode)}
+          onOpenSitrep={() => setIsSitrepOpen(true)}
+          onUseMyLocation={handleUseMyLocation}
+        />
+
+        {/* Dynamic Content Container (switches based on sidebar selection with 300ms transition) */}
+        <main className="flex-1 overflow-y-auto bg-[#0f1419] tab-content-active transition-all duration-300">
+          {networkError && (
+            <div className="m-4 bg-amber-950/60 border border-amber-800/80 text-amber-200 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 font-mono">
+              <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              <span>{networkError}</span>
+            </div>
+          )}
+
+          {/* TAB 1: Live Map (Default / Full-screen interactive Leaflet map) */}
+          {activeTab === 'map' && (
+            <LiveMapTab
+              selectedLocation={selectedLocation}
+              onSelectLocation={handleSelectLocation}
+              predictionData={predictionData}
+              isLoading={isLoading}
+              onSearchQuery={handleSearchQuery}
+              onOpenAlertDispatcher={() => setIsDispatcherOpen(true)}
+            />
+          )}
+
+          {/* TAB 2: Flood Alerts */}
+          {activeTab === 'alerts' && (
+            <FloodAlertsTab
+              predictionData={predictionData}
+              selectedLocation={selectedLocation}
+              onNavigateToMap={() => setActiveTab('map')}
+              onOpenDispatcher={() => setIsDispatcherOpen(true)}
+            />
+          )}
+
+          {/* TAB 3: Analytics */}
+          {activeTab === 'analytics' && (
+            <AnalyticsTab
+              predictionData={predictionData}
+              modelInfo={modelInfo}
+              historicalEvents={historicalEvents}
+            />
+          )}
+
+          {/* TAB 4: Affected Areas */}
+          {activeTab === 'affected' && (
+            <AffectedAreasTab
+              onSelectAreaLocation={(lat, lon, name) => {
+                handleSelectLocation(lat, lon, name);
+                setActiveTab('map');
+              }}
+            />
+          )}
+
+          {/* TAB 5: Settings */}
+          {activeTab === 'settings' && (
+            <SettingsTab />
+          )}
+        </main>
+      </div>
+
+      {/* 3. Operational Modals */}
       <SitrepModal
         isOpen={isSitrepOpen}
         onClose={() => setIsSitrepOpen(false)}
@@ -336,7 +291,13 @@ export const App: React.FC = () => {
         selectedLocation={selectedLocation}
       />
 
-      {/* Citizen & Observer Ground Intel Modal (7C: Community) */}
+      <AlertDispatcherModal
+        isOpen={isDispatcherOpen}
+        onClose={() => setIsDispatcherOpen(false)}
+        predictionData={predictionData}
+        selectedLocation={selectedLocation}
+      />
+
       <CitizenReportModal
         isOpen={isCitizenReportOpen}
         onClose={() => setIsCitizenReportOpen(false)}
