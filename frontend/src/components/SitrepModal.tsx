@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   FileText, 
   X, 
@@ -7,7 +7,8 @@ import {
   CheckCircle2, 
   MapPin, 
   Clock, 
-  AlertTriangle 
+  AlertTriangle,
+  ArrowLeft
 } from 'lucide-react';
 import { PredictResponse, EnvironmentResponse, TerrainResponse } from '../types';
 
@@ -28,6 +29,15 @@ export const SitrepModal: React.FC<SitrepModalProps> = ({
   terrainData,
   selectedLocation,
 }) => {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const currentDate = new Date().toLocaleDateString('en-IN', {
@@ -52,33 +62,51 @@ export const SitrepModal: React.FC<SitrepModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white border border-slate-300 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden my-8 text-slate-900 font-sans">
-        {/* Top Control Bar */}
-        <div className="bg-slate-100 px-6 py-3 border-b border-slate-200 flex items-center justify-between text-xs">
-          <div className="flex items-center gap-2 font-mono text-indigo-700 font-bold">
-            <FileText className="w-4 h-4" />
-            <span>SITREP-GEN // FLASH-FLOOD DISASTER BRIEFING</span>
+    <div 
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto"
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white border border-slate-300 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden my-8 text-slate-900 font-sans flex flex-col max-h-[92vh]"
+      >
+        {/* Top Control Bar with Back Button */}
+        <div className="bg-slate-100 px-5 py-3 border-b border-slate-200 flex items-center justify-between text-xs flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClose}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+              title="Return to Live Map"
+            >
+              <ArrowLeft className="w-4 h-4 text-white" />
+              <span>← Back to Map</span>
+            </button>
+            <div className="flex items-center gap-1.5 font-mono text-indigo-700 font-bold hidden sm:flex">
+              <FileText className="w-4 h-4" />
+              <span>SITREP // FLASH-FLOOD BRIEFING</span>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold border border-slate-300 transition-colors shadow-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold border border-slate-300 transition-colors shadow-xs cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5 text-indigo-600" />
-              <span>Print / Save PDF</span>
+              <span>Print / PDF</span>
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-colors"
+              className="flex items-center gap-1 p-1.5 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200 text-xs font-bold transition-colors cursor-pointer"
+              title="Close (Esc)"
             >
               <X className="w-4 h-4" />
+              <span>Close</span>
             </button>
           </div>
         </div>
 
         {/* Printable Document Body */}
-        <div className="p-8 bg-white space-y-6 text-sm">
+        <div className="p-8 bg-white space-y-6 text-sm overflow-y-auto flex-1">
           {/* Official Letterhead Header */}
           <div className="border-b-2 border-slate-800 pb-4 flex items-start justify-between">
             <div>
@@ -204,6 +232,33 @@ export const SitrepModal: React.FC<SitrepModalProps> = ({
           <div className="pt-4 border-t border-slate-200 flex items-center justify-between text-[11px] font-mono text-slate-500">
             <div>DISPATCHED VIA: C-DAC CAP PROTOCOL V1.2</div>
             <div>VERIFIED BY: INCIDENT COMMAND SYSTEM (ICS-HP)</div>
+          </div>
+        </div>
+
+        {/* Bottom Action Footer Bar with Back Button */}
+        <div className="bg-slate-100 px-6 py-3.5 border-t border-slate-200 flex items-center justify-between flex-shrink-0">
+          <button
+            onClick={onClose}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-md cursor-pointer active:scale-95"
+          >
+            <ArrowLeft className="w-4 h-4 text-white" />
+            <span>← Back to Live Map</span>
+          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold border border-slate-300 transition-colors shadow-xs cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Print / PDF</span>
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>
