@@ -49,6 +49,7 @@ export const App: React.FC = () => {
   // Navigation: Default tab is 'map' as specified in requirements
   const [activeTab, setActiveTab] = useState<TabId>('map');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [isDemoMode, setIsDemoMode] = useState<boolean>(() => storage.getSettings().isDemoMode);
   const [demoControls, setDemoControls] = useState<DemoControlsState>(() => storage.getDemoControls());
 
@@ -193,24 +194,36 @@ export const App: React.FC = () => {
     return res.results;
   };
 
+  const handleToggleSidebar = () => {
+    if (window.innerWidth < 1024) {
+      setIsMobileSidebarOpen(prev => !prev);
+    } else {
+      setIsSidebarCollapsed(prev => !prev);
+    }
+  };
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-gradient-to-br from-slate-100 via-sky-50/50 to-blue-50/70 text-slate-900 font-sans selection:bg-[#2563eb] selection:text-white">
-      {/* 1. Left Sidebar Panel (250px fixed width, collapsible on tablet/mobile) */}
+      {/* 1. Left Sidebar Navigation Panel (Collapsible with Open/Close Toggle) */}
       <Sidebar
         activeTab={activeTab}
         onSelectTab={(tab) => setActiveTab(tab)}
         activeAlertCount={3}
         isMobileOpen={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
         onOpenProfile={() => setIsUserProfileOpen(true)}
         onOpenEmergencyDirectory={() => setIsEmergencyModalOpen(true)}
       />
 
-      {/* 2. Main Content Area (Remaining space) */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50/50">
+      {/* 2. Main Content Area (Remaining space, dynamically expands when sidebar is closed) */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50/50 transition-all duration-300">
         {/* Header Bar: Location selector, Refresh button, Date/Time */}
         <HeaderBar
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
+          isSidebarCollapsed={isSidebarCollapsed}
+          onToggleSidebar={handleToggleSidebar}
           selectedLocation={selectedLocation}
           onSelectPreset={handleSelectDemoLocation}
           onRefresh={() => loadLocationData(selectedLocation.latitude, selectedLocation.longitude, selectedLocation.name)}

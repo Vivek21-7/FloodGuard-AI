@@ -9,11 +9,15 @@ import {
   FileText, 
   ShieldCheck,
   Compass,
-  PhoneCall
+  PhoneCall,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 
 interface HeaderBarProps {
   onToggleMobileSidebar: () => void;
+  isSidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
   selectedLocation: { latitude: number; longitude: number; name?: string };
   onSelectPreset: (name: string) => void;
   onRefresh: () => void;
@@ -38,6 +42,8 @@ const PRESET_LOCATIONS = [
 
 export const HeaderBar: React.FC<HeaderBarProps> = ({
   onToggleMobileSidebar,
+  isSidebarCollapsed = false,
+  onToggleSidebar,
   selectedLocation,
   onSelectPreset,
   onRefresh,
@@ -94,15 +100,32 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 
   return (
     <header className="h-16 bg-white/85 backdrop-blur-xl border-b border-blue-100 px-4 flex items-center justify-between gap-3 text-slate-800 select-none z-20 shadow-xs">
-      {/* Left: Mobile Toggle & Location Selector */}
+      {/* Left: Sidebar Open/Close Toggle & Location Selector */}
       <div className="flex items-center gap-3">
-        {/* Mobile Hamburger */}
+        {/* Navigation Panel Toggle Button (Open / Close) */}
         <button
-          onClick={onToggleMobileSidebar}
-          className="lg:hidden md:hidden p-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 transition-colors"
-          title="Toggle Navigation Menu"
+          onClick={() => {
+            if (onToggleSidebar) {
+              onToggleSidebar();
+            } else {
+              onToggleMobileSidebar();
+            }
+          }}
+          className={`p-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer border active:scale-95 ${
+            isSidebarCollapsed 
+              ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md shadow-blue-500/20' 
+              : 'bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 border-slate-200 shadow-2xs'
+          }`}
+          title={isSidebarCollapsed ? "Open Navigation Panel" : "Close Navigation Panel"}
         >
-          <Menu className="w-5 h-5" />
+          {isSidebarCollapsed ? (
+            <>
+              <PanelLeftOpen className="w-5 h-5 text-white" />
+              <span className="hidden sm:inline text-xs font-bold font-sans">Open Panel</span>
+            </>
+          ) : (
+            <PanelLeftClose className="w-5 h-5 text-slate-600" />
+          )}
         </button>
 
         {/* Active Catchment Location Pill */}
