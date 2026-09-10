@@ -75,24 +75,24 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   }, []);
 
   return (
-    <header className="h-16 bg-[#151b23] border-b border-[#212c3b] px-4 flex items-center justify-between gap-3 text-slate-200 select-none z-20">
+    <header className="h-16 bg-white border-b border-slate-200 px-4 flex items-center justify-between gap-3 text-slate-800 select-none z-20 shadow-xs">
       {/* Left: Mobile Toggle & Location Selector */}
       <div className="flex items-center gap-3">
         {/* Mobile Hamburger */}
         <button
           onClick={onToggleMobileSidebar}
-          className="lg:hidden md:hidden p-2 rounded-xl bg-[#1e2634] hover:bg-[#283346] text-slate-300 hover:text-white transition-colors"
+          className="lg:hidden md:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 transition-colors"
           title="Toggle Navigation Menu"
         >
           <Menu className="w-5 h-5" />
         </button>
 
         {/* Active Catchment Location Pill */}
-        <div className="flex items-center gap-2 bg-[#1b2330] border border-[#2d3a4e] px-3 py-1.5 rounded-xl shadow-inner">
-          <MapPin className="w-4 h-4 text-[#FF6B6B] flex-shrink-0 animate-bounce" />
+        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl shadow-xs">
+          <MapPin className="w-4 h-4 text-rose-600 flex-shrink-0 animate-bounce" />
           <div className="flex flex-col">
-            <span className="text-[9px] text-slate-400 font-mono leading-none">TARGET BASIN:</span>
-            <span className="text-xs font-bold text-white font-sans truncate max-w-[180px] sm:max-w-[240px]">
+            <span className="text-[9px] text-slate-500 font-mono leading-none">TARGET BASIN:</span>
+            <span className="text-xs font-bold text-slate-900 font-sans truncate max-w-[180px] sm:max-w-[240px]">
               {selectedLocation.name || `${selectedLocation.latitude.toFixed(3)}°N, ${selectedLocation.longitude.toFixed(3)}°E`}
             </span>
           </div>
@@ -108,8 +108,8 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                 onClick={() => onSelectPreset(preset)}
                 className={`px-2.5 py-1 rounded-lg border transition-all ${
                   isSelected
-                    ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border-[#FF6B6B]/40 font-bold'
-                    : 'bg-[#1b2330] text-slate-400 border-transparent hover:border-slate-700 hover:text-slate-200'
+                    ? 'bg-rose-50 text-rose-700 border-rose-300 font-bold'
+                    : 'bg-slate-100 text-slate-600 border-transparent hover:bg-slate-200 hover:text-slate-900'
                 }`}
               >
                 {preset}
@@ -125,10 +125,10 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         {onUseMyLocation && (
           <button
             onClick={onUseMyLocation}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#1b2330] hover:bg-[#253142] border border-[#2d3a4e] text-slate-300 text-xs font-semibold transition-all shadow-xs"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold transition-all shadow-xs"
             title="Locate Device GPS"
           >
-            <Compass className="w-3.5 h-3.5 text-[#4ECDC4]" />
+            <Compass className="w-3.5 h-3.5 text-teal-600" />
             <span className="hidden md:inline">GPS</span>
           </button>
         )}
@@ -137,10 +137,10 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         {onOpenSitrep && (
           <button
             onClick={onOpenSitrep}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1b2330] hover:bg-[#253142] border border-[#2d3a4e] text-slate-200 text-xs font-bold transition-all shadow-xs"
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold transition-all shadow-xs"
             title="Generate Official Incident Situation Report"
           >
-            <FileText className="w-3.5 h-3.5 text-[#FFE66D]" />
+            <FileText className="w-3.5 h-3.5 text-amber-600" />
             <span>SITREP</span>
           </button>
         )}
@@ -150,8 +150,8 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           onClick={onToggleDemoMode}
           className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 shadow-xs ${
             isDemoMode
-              ? 'bg-[#FFE66D]/20 text-[#FFE66D] border-[#FFE66D]/40'
-              : 'bg-[#4ECDC4]/20 text-[#4ECDC4] border-[#4ECDC4]/40'
+              ? 'bg-amber-50 text-amber-800 border-amber-300'
+              : 'bg-emerald-50 text-emerald-700 border-emerald-300'
           }`}
           title="Toggle between Live Telemetry API and Interactive Sandbox"
         >
@@ -163,19 +163,19 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         <button
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="p-2 rounded-xl bg-[#1b2330] hover:bg-[#253142] border border-[#2d3a4e] text-slate-300 hover:text-white transition-all active:scale-95 disabled:opacity-50"
+          className="p-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 transition-all active:scale-95 disabled:opacity-50 shadow-xs"
           title="Refresh All Telemetry & Forecasts"
         >
-          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#4ECDC4]' : ''}`} />
+          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-teal-600' : ''}`} />
         </button>
 
         {/* Date / Time Display */}
-        <div className="hidden lg:flex flex-col text-right pl-3 border-l border-[#263342] text-[11px] leading-tight">
-          <div className="flex items-center justify-end gap-1 text-white font-bold font-mono">
-            <Clock className="w-3 h-3 text-[#4ECDC4]" />
+        <div className="hidden lg:flex flex-col text-right pl-3 border-l border-slate-200 text-[11px] leading-tight">
+          <div className="flex items-center justify-end gap-1 text-slate-900 font-bold font-mono">
+            <Clock className="w-3 h-3 text-teal-600" />
             <span>{currentTime || '00:00:00'} IST</span>
           </div>
-          <span className="text-[9px] text-slate-400 font-mono">{currentDate}</span>
+          <span className="text-[9px] text-slate-500 font-mono">{currentDate}</span>
         </div>
       </div>
     </header>

@@ -70,10 +70,10 @@ const LIVE_BULLETINS: TickerItem[] = [
 
 export const EmergencyTicker: React.FC = () => {
   return (
-    <div className="bg-slate-900 text-slate-200 border-b border-slate-800 text-[11px] font-mono overflow-hidden select-none">
+    <div className="bg-slate-50 text-slate-800 border-b border-slate-200 text-[11px] font-mono overflow-hidden select-none shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-3">
         {/* Urgent Live Badge */}
-        <div className="flex items-center gap-1.5 bg-rose-600/90 text-white font-black px-2 py-0.5 rounded text-[10px] tracking-wider uppercase flex-shrink-0 animate-pulse">
+        <div className="flex items-center gap-1.5 bg-rose-600 text-white font-black px-2 py-0.5 rounded text-[10px] tracking-wider uppercase flex-shrink-0 shadow-xs animate-pulse">
           <Radio className="w-3 h-3" />
           <span>CWC SITREP</span>
         </div>
@@ -83,25 +83,25 @@ export const EmergencyTicker: React.FC = () => {
           <div className="inline-flex items-center gap-8 animate-marquee">
             {LIVE_BULLETINS.concat(LIVE_BULLETINS).map((item, idx) => {
               const statusColor = 
-                item.status === 'CRITICAL' ? 'text-rose-400 bg-rose-950/60 border-rose-800' :
-                item.status === 'HIGH' ? 'text-amber-400 bg-amber-950/60 border-amber-800' :
-                'text-sky-400 bg-sky-950/60 border-sky-800';
+                item.status === 'CRITICAL' ? 'text-rose-700 bg-rose-50 border-rose-200' :
+                item.status === 'HIGH' ? 'text-amber-800 bg-amber-50 border-amber-200' :
+                'text-sky-700 bg-sky-50 border-sky-200';
 
               return (
                 <div key={idx} className="inline-flex items-center gap-2">
                   <span className={`px-1.5 py-0.2 rounded border text-[9px] font-black uppercase ${statusColor}`}>
                     {item.status}
                   </span>
-                  <span className="font-bold text-white">
+                  <span className="font-bold text-slate-900">
                     {item.station}, {item.state} ({item.river}):
                   </span>
-                  <span className="text-slate-300">
+                  <span className="text-slate-700">
                     {item.message}
                   </span>
-                  <span className="text-indigo-400 font-semibold font-mono">
+                  <span className="text-indigo-600 font-bold font-mono">
                     [{item.level}]
                   </span>
-                  <span className="text-slate-600 mx-2">•</span>
+                  <span className="text-slate-300 mx-2">•</span>
                 </div>
               );
             })}
@@ -109,10 +109,10 @@ export const EmergencyTicker: React.FC = () => {
         </div>
 
         {/* Operations Hotline Link */}
-        <div className="hidden md:flex items-center gap-2 flex-shrink-0 pl-3 border-l border-slate-800 text-slate-400">
-          <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+        <div className="hidden md:flex items-center gap-2 flex-shrink-0 pl-3 border-l border-slate-200 text-slate-500">
+          <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
           <span>NDRF 24x7 Control:</span>
-          <a href="tel:1078" className="text-amber-300 hover:text-white font-bold underline">
+          <a href="tel:1078" className="text-amber-700 hover:text-amber-900 font-bold underline">
             1078
           </a>
         </div>

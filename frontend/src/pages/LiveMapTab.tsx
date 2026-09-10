@@ -56,17 +56,17 @@ const MapZoomControls: React.FC<{
   const map = useMap();
   return (
     <div className="leaflet-bottom leaflet-left !bottom-6 !left-4 z-[400] flex flex-col gap-1.5 select-none pointer-events-auto">
-      <div className="flex flex-col bg-[#151b23]/95 backdrop-blur-md border border-[#263342] rounded-xl overflow-hidden shadow-2xl">
+      <div className="flex flex-col bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl overflow-hidden shadow-lg">
         <button
           onClick={() => map.zoomIn()}
-          className="w-9 h-9 flex items-center justify-center text-slate-200 hover:text-white hover:bg-[#263342] transition-colors border-b border-[#263342] font-mono font-bold text-lg active:bg-[#344458]"
+          className="w-9 h-9 flex items-center justify-center text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors border-b border-slate-200 font-mono font-bold text-lg active:bg-slate-200"
           title="Zoom In"
         >
           +
         </button>
         <button
           onClick={() => map.zoomOut()}
-          className="w-9 h-9 flex items-center justify-center text-slate-200 hover:text-white hover:bg-[#263342] transition-colors font-mono font-bold text-lg active:bg-[#344458]"
+          className="w-9 h-9 flex items-center justify-center text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors font-mono font-bold text-lg active:bg-slate-200"
           title="Zoom Out"
         >
           −
@@ -74,7 +74,7 @@ const MapZoomControls: React.FC<{
       </div>
       <button
         onClick={onRecenter}
-        className="w-9 h-9 flex items-center justify-center bg-[#151b23]/95 backdrop-blur-md border border-[#263342] rounded-xl shadow-2xl text-slate-200 hover:text-[#4ECDC4] hover:bg-[#263342] transition-colors"
+        className="w-9 h-9 flex items-center justify-center bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl shadow-lg text-slate-700 hover:text-rose-600 hover:bg-slate-100 transition-colors"
         title="Center on Target Basin"
       >
         <Compass className="w-4 h-4" />
@@ -318,7 +318,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
   };
 
   return (
-    <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-[#0f1419]">
+    <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-[#f8fafc]">
       {/* 🗺️ Leaflet Full Screen Map View */}
       <MapContainer
         center={[selectedLocation.latitude, selectedLocation.longitude]}
@@ -326,7 +326,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
         className="w-full h-full z-0"
         zoomControl={false}
       >
-        {/* Dark Carto Tile Layer for Tactical Emergency Look */}
+        {/* Clean Voyager Tile Layer */}
         <TileLayer
           attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
@@ -365,8 +365,8 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
             center={[st.lat, st.lon]}
             radius={8}
             pathOptions={{
-              color: st.status === 'DANGER' ? '#FF6B6B' : (st.status === 'WARNING' ? '#f97316' : '#4ECDC4'),
-              fillColor: st.status === 'DANGER' ? '#FF6B6B' : (st.status === 'WARNING' ? '#f97316' : '#4ECDC4'),
+              color: st.status === 'DANGER' ? '#FF6B6B' : (st.status === 'WARNING' ? '#f97316' : '#0284c7'),
+              fillColor: st.status === 'DANGER' ? '#FF6B6B' : (st.status === 'WARNING' ? '#f97316' : '#0284c7'),
               fillOpacity: 0.9,
               weight: 2,
             }}
@@ -394,8 +394,8 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
             center={[ev.lat, ev.lon]}
             radius={7}
             pathOptions={{
-              color: '#4ECDC4',
-              fillColor: '#4ECDC4',
+              color: '#059669',
+              fillColor: '#10b981',
               fillOpacity: 0.9,
               weight: 2,
             }}
@@ -458,7 +458,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
         <div className="relative">
           <form 
             onSubmit={handleSearchSubmit}
-            className="bg-[#151b23]/95 backdrop-blur-md border border-[#263342] rounded-2xl p-2 flex items-center gap-2 shadow-xl focus-within:border-[#4ECDC4] transition-all"
+            className="bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl p-2 flex items-center gap-2 shadow-lg focus-within:border-rose-400 transition-all"
           >
             <Search className="w-4 h-4 text-slate-400 ml-1.5 flex-shrink-0" />
             <input
@@ -467,13 +467,13 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}
-              className="w-full bg-transparent text-xs font-mono text-white placeholder:text-slate-500 outline-none"
+              className="w-full bg-transparent text-xs font-mono text-slate-900 placeholder:text-slate-400 outline-none"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="text-slate-400 hover:text-white text-xs px-1.5"
+                className="text-slate-400 hover:text-slate-700 text-xs px-1.5"
               >
                 ✕
               </button>
@@ -482,24 +482,24 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
 
           {/* Autocomplete Dropdown */}
           {isSearchFocused && searchResults.length > 0 && (
-            <div className="absolute top-full mt-1.5 left-0 right-0 bg-[#151b23]/98 backdrop-blur-xl border border-[#263342] rounded-2xl shadow-2xl overflow-hidden z-30 font-mono text-xs">
-              <div className="p-2 border-b border-[#263342] text-[10px] text-slate-400 flex items-center justify-between">
+            <div className="absolute top-full mt-1.5 left-0 right-0 bg-white/98 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-30 font-mono text-xs">
+              <div className="p-2 border-b border-slate-200 text-[10px] text-slate-500 flex items-center justify-between">
                 <span>SUGGESTIONS</span>
                 <span>PRESS ENTER TO JUMP</span>
               </div>
-              <div className="max-h-56 overflow-y-auto divide-y divide-[#263342]/50">
+              <div className="max-h-56 overflow-y-auto divide-y divide-slate-100">
                 {searchResults.map((item, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => handleSelectSearchResult(item.lat, item.lon, item.name)}
-                    className="w-full p-2.5 text-left hover:bg-white/10 flex items-center justify-between transition-colors text-slate-200"
+                    className="w-full p-2.5 text-left hover:bg-slate-50 flex items-center justify-between transition-colors text-slate-800"
                   >
                     <div className="truncate pr-2">
-                      <div className="font-bold text-white truncate">{item.name}</div>
-                      <div className="text-[10px] text-slate-400">{item.type}</div>
+                      <div className="font-bold text-slate-900 truncate">{item.name}</div>
+                      <div className="text-[10px] text-slate-500">{item.type}</div>
                     </div>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-bold flex-shrink-0">
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-bold flex-shrink-0 border border-slate-200">
                       {item.badge}
                     </span>
                   </button>
@@ -510,11 +510,11 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
         </div>
 
         {/* Layer Toggles Pill Strip */}
-        <div className="bg-[#151b23]/95 backdrop-blur-md border border-[#263342] rounded-xl p-1.5 flex flex-wrap items-center gap-1.5 text-[10px] font-mono shadow-xl text-slate-300">
+        <div className="bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl p-1.5 flex flex-wrap items-center gap-1.5 text-[10px] font-mono shadow-lg text-slate-700">
           <button
             onClick={() => setShowZones(!showZones)}
             className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 ${
-              showZones ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] font-bold border border-[#FF6B6B]/40' : 'text-slate-400 hover:text-white'
+              showZones ? 'bg-rose-50 text-rose-700 font-bold border border-rose-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <span>Flood Zones</span>
@@ -522,7 +522,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
           <button
             onClick={() => setShowStations(!showStations)}
             className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 ${
-              showStations ? 'bg-blue-500/20 text-blue-400 font-bold border border-blue-500/40' : 'text-slate-400 hover:text-white'
+              showStations ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <span>🌊 Gauges</span>
@@ -530,7 +530,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
           <button
             onClick={() => setShowShelters(!showShelters)}
             className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 ${
-              showShelters ? 'bg-[#4ECDC4]/20 text-[#4ECDC4] font-bold border border-[#4ECDC4]/40' : 'text-slate-400 hover:text-white'
+              showShelters ? 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <span>🏥 Shelters</span>
@@ -538,7 +538,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
           <button
             onClick={() => setShowIncidents(!showIncidents)}
             className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 ${
-              showIncidents ? 'bg-[#FFE66D]/20 text-[#FFE66D] font-bold border border-[#FFE66D]/40' : 'text-slate-400 hover:text-white'
+              showIncidents ? 'bg-amber-50 text-amber-800 font-bold border border-amber-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <span>⚠️ Incidents</span>
@@ -551,18 +551,18 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
         isSideCardExpanded ? 'w-[320px] sm:w-[350px]' : 'w-auto'
       }`}>
         {isSideCardExpanded ? (
-          <div className="bg-[#151b23]/95 backdrop-blur-xl border border-[#263342] rounded-3xl p-5 shadow-2xl text-slate-200 font-mono space-y-4">
+          <div className="bg-white/95 backdrop-blur-xl border border-slate-200 rounded-3xl p-5 shadow-2xl text-slate-800 font-mono space-y-4">
             {/* Card Header with Collapse Button */}
-            <div className="flex items-center justify-between pb-3 border-b border-[#263342]">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#FF6B6B] animate-pulse"></div>
-                <h3 className="text-xs font-bold text-white uppercase tracking-wider font-sans">
+                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider font-sans">
                   TACTICAL FLOOD RISK ASSESSOR
                 </h3>
               </div>
               <button
                 onClick={() => setIsSideCardExpanded(false)}
-                className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white"
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800"
                 title="Collapse Side Card"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -570,16 +570,16 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
             </div>
 
             {/* Risk Badge & Nearest Threat Distance */}
-            <div className="p-3 bg-[#1c2430] border border-[#2a384c] rounded-2xl flex items-center justify-between">
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-slate-400 block uppercase">CURRENT THREAT LEVEL</span>
+                <span className="text-[10px] text-slate-500 block uppercase">CURRENT THREAT LEVEL</span>
                 <span className="text-base font-black tracking-tight uppercase" style={{ color: riskColor }}>
                   {riskLevel} RISK
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-slate-400 block uppercase">NEAREST RIVER THREAT</span>
-                <span className="text-sm font-bold text-white">
+                <span className="text-[10px] text-slate-500 block uppercase">NEAREST RIVER THREAT</span>
+                <span className="text-sm font-bold text-slate-900">
                   1.2 km (Beas Confluence)
                 </span>
               </div>
@@ -587,22 +587,22 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
 
             {/* Probability Gauge & Evacuation Lead Time */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 bg-[#1c2430] border border-[#2a384c] rounded-2xl">
-                <span className="text-[10px] text-slate-400 block uppercase">PROBABILITY</span>
-                <div className="text-2xl font-black text-white mt-0.5">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+                <span className="text-[10px] text-slate-500 block uppercase">PROBABILITY</span>
+                <div className="text-2xl font-black text-slate-900 mt-0.5">
                   {probPercent}%
                 </div>
-                <span className="text-[9px] text-[#FF6B6B] font-semibold block mt-0.5">
+                <span className="text-[9px] text-rose-600 font-semibold block mt-0.5">
                   Crosses Warning Level
                 </span>
               </div>
 
-              <div className="p-3 bg-[#1c2430] border border-[#2a384c] rounded-2xl">
-                <span className="text-[10px] text-slate-400 block uppercase">LEAD TIME</span>
-                <div className="text-2xl font-black text-[#FFE66D] mt-0.5">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+                <span className="text-[10px] text-slate-500 block uppercase">LEAD TIME</span>
+                <div className="text-2xl font-black text-amber-600 mt-0.5">
                   {leadTimeHours}h
                 </div>
-                <span className="text-[9px] text-slate-400 block mt-0.5">
+                <span className="text-[9px] text-slate-500 block mt-0.5">
                   Window to safe ground
                 </span>
               </div>
@@ -610,16 +610,16 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
 
             {/* Recommended Emergency Actions */}
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
                 RECOMMENDED OPERATIONAL DIRECTIVES
               </span>
-              <ul className="space-y-1.5 text-xs text-slate-300 font-sans">
+              <ul className="space-y-1.5 text-xs text-slate-700 font-sans">
                 {(predictionData?.recommendations || [
                   'Evacuate lower riverbed floodplains within 1.5 hours.',
                   'Direct displaced residents to Govt Degree College Shelter (+120m).',
                   'Activate SDRF Quick Reaction Inflatable Boats at Sonprayag.'
                 ]).slice(0, 3).map((action, idx) => (
-                  <li key={idx} className="flex items-start gap-2 bg-[#10161f] p-2 rounded-xl border border-[#1e2736]">
+                  <li key={idx} className="flex items-start gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
                     <span className="text-[#FF6B6B] font-bold">•</span>
                     <span className="leading-snug text-[11px]">{action}</span>
                   </li>
@@ -631,7 +631,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
             {onOpenAlertDispatcher && (
               <button
                 onClick={onOpenAlertDispatcher}
-                className="w-full py-2.5 px-3 rounded-xl bg-[#FF6B6B] hover:bg-[#ff5252] text-white font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-[#FF6B6B]/20 transition-all active:scale-95"
+                className="w-full py-2.5 px-3 rounded-xl bg-[#FF6B6B] hover:bg-rose-600 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-rose-500/20 transition-all active:scale-95"
               >
                 <Radio className="w-4 h-4 animate-pulse" />
                 <span>TRIGGER EVACUATION ALERTS (SMS/CAP)</span>
@@ -641,7 +641,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
         ) : (
           <button
             onClick={() => setIsSideCardExpanded(true)}
-            className="p-3 bg-[#151b23]/95 backdrop-blur-md border border-[#263342] rounded-2xl shadow-xl flex items-center gap-2 text-white font-mono text-xs font-bold hover:bg-[#1f2835] transition-all"
+            className="p-3 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl shadow-xl flex items-center gap-2 text-slate-800 font-mono text-xs font-bold hover:bg-slate-50 transition-all"
             title="Expand Risk Assessment Card"
           >
             <ChevronLeft className="w-4 h-4 text-[#FF6B6B]" />

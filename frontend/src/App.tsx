@@ -189,8 +189,8 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#0f1419] text-slate-100 font-sans selection:bg-[#FF6B6B] selection:text-white">
-      {/* 1. Left Sidebar Panel (250px fixed width, #1a1a1a dark theme, collapsible on tablet/mobile) */}
+    <div className="flex h-screen w-screen overflow-hidden bg-[#f8fafc] text-slate-900 font-sans selection:bg-[#FF6B6B] selection:text-white">
+      {/* 1. Left Sidebar Panel (250px fixed width, clean white theme, collapsible on tablet/mobile) */}
       <Sidebar
         activeTab={activeTab}
         onSelectTab={(tab) => setActiveTab(tab)}
@@ -225,10 +225,10 @@ export const App: React.FC = () => {
         />
 
         {/* Dynamic Content Container (switches based on sidebar selection with 300ms transition) */}
-        <main className="flex-1 overflow-y-auto bg-[#0f1419] tab-content-active transition-all duration-300">
+        <main className="flex-1 overflow-y-auto bg-[#f8fafc] tab-content-active transition-all duration-300">
           {networkError && (
-            <div className="m-4 bg-amber-950/60 border border-amber-800/80 text-amber-200 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 font-mono">
-              <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <div className="m-4 bg-amber-50 border border-amber-200 text-amber-900 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 font-mono">
+              <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
               <span>{networkError}</span>
             </div>
           )}
