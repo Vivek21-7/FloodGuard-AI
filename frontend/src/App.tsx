@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Sidebar, TabId } from './components/Sidebar';
 import { HeaderBar } from './components/HeaderBar';
-import { EmergencyTicker } from './components/EmergencyTicker';
 import { SitrepModal } from './components/SitrepModal';
 import { AlertDispatcherModal } from './components/AlertDispatcherModal';
 import { CitizenReportModal } from './components/CitizenReportModal';
@@ -192,8 +191,8 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#f8fafc] text-slate-900 font-sans selection:bg-[#FF6B6B] selection:text-white">
-      {/* 1. Left Sidebar Panel (250px fixed width, clean white theme, collapsible on tablet/mobile) */}
+    <div className="flex h-screen w-screen overflow-hidden bg-gradient-to-br from-slate-100 via-sky-50/50 to-blue-50/70 text-slate-900 font-sans selection:bg-[#2563eb] selection:text-white">
+      {/* 1. Left Sidebar Panel (250px fixed width, collapsible on tablet/mobile) */}
       <Sidebar
         activeTab={activeTab}
         onSelectTab={(tab) => setActiveTab(tab)}
@@ -204,17 +203,7 @@ export const App: React.FC = () => {
       />
 
       {/* 2. Main Content Area (Remaining space) */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* National Tricolor Accent Bar */}
-        <div className="h-1 w-full flex flex-shrink-0">
-          <div className="flex-1 bg-[#FF9933]"></div>
-          <div className="flex-1 bg-white"></div>
-          <div className="flex-1 bg-[#138808]"></div>
-        </div>
-
-        {/* Live Emergency Ticker Marquee */}
-        <EmergencyTicker />
-
+      <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50/50">
         {/* Header Bar: Location selector, Refresh button, Date/Time */}
         <HeaderBar
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
@@ -229,7 +218,7 @@ export const App: React.FC = () => {
         />
 
         {/* Dynamic Content Container (switches based on sidebar selection with 300ms transition) */}
-        <main className="flex-1 overflow-y-auto bg-[#f8fafc] tab-content-active transition-all duration-300">
+        <main className="flex-1 overflow-y-auto bg-gradient-to-br from-[#f4f7fb] via-[#eef3f9] to-[#f7f9fc] tab-content-active transition-all duration-300">
           {networkError && (
             <div className="m-4 bg-amber-50 border border-amber-200 text-amber-900 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 font-mono">
               <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />

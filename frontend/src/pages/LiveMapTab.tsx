@@ -751,12 +751,12 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
         <div className="relative">
           <form 
             onSubmit={handleSearchSubmit}
-            className="bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl p-2 flex items-center gap-2 shadow-lg focus-within:border-rose-400 transition-all"
+            className="bg-white/95 backdrop-blur-md border border-blue-200/90 rounded-2xl p-2 flex items-center gap-2 shadow-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-300/30 transition-all"
           >
             {isSearchingRemote ? (
-              <Loader2 className="w-4 h-4 text-indigo-600 animate-spin ml-1.5 flex-shrink-0" />
+              <Loader2 className="w-4 h-4 text-blue-600 animate-spin ml-1.5 flex-shrink-0" />
             ) : (
-              <Search className="w-4 h-4 text-slate-400 ml-1.5 flex-shrink-0" />
+              <Search className="w-4 h-4 text-blue-500 ml-1.5 flex-shrink-0" />
             )}
             <input
               type="text"
@@ -786,8 +786,8 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
 
           {/* Autocomplete Dropdown */}
           {isSearchFocused && (searchQuery.trim().length > 0) && (
-            <div className="absolute top-full mt-1.5 left-0 right-0 bg-white/98 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-30 font-mono text-xs">
-              <div className="p-2 border-b border-slate-200 text-[10px] text-slate-500 flex items-center justify-between">
+            <div className="absolute top-full mt-1.5 left-0 right-0 bg-white/98 backdrop-blur-xl border border-blue-200 rounded-2xl shadow-2xl overflow-hidden z-30 font-mono text-xs">
+              <div className="p-2 bg-blue-50/70 border-b border-blue-100 text-[10px] text-blue-800 flex items-center justify-between font-bold">
                 <span>PAN-INDIA LIVE SEARCH</span>
                 <span>{isSearchingRemote ? 'SEARCHING...' : 'ENTER TO JUMP'}</span>
               </div>
@@ -800,13 +800,13 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
                       e.preventDefault();
                       handleSelectSearchResult(item.lat, item.lon, item.name);
                     }}
-                    className="w-full p-2.5 text-left hover:bg-slate-50 flex items-center justify-between transition-colors text-slate-800 cursor-pointer"
+                    className="w-full p-2.5 text-left hover:bg-blue-50/50 flex items-center justify-between transition-colors text-slate-800 cursor-pointer"
                   >
                     <div className="truncate pr-2">
                       <div className="font-bold text-slate-900 truncate">{item.name}</div>
                       <div className="text-[10px] text-slate-500">{item.type}</div>
                     </div>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-bold flex-shrink-0 border border-slate-200">
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold flex-shrink-0 border border-blue-200">
                       {item.badge}
                     </span>
                   </button>
@@ -814,7 +814,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
 
                 {combinedSearchResults.length === 0 && !isSearchingRemote && (
                   <div className="p-3 text-center text-[11px] text-slate-500 font-sans">
-                    No immediate match. Press <kbd className="font-mono bg-slate-100 px-1 py-0.5 rounded border border-slate-200 text-slate-700 font-bold">Enter</kbd> to search pan-India geocoder.
+                    No immediate match. Press <kbd className="font-mono bg-blue-50 px-1 py-0.5 rounded border border-blue-200 text-blue-700 font-bold">Enter</kbd> to search pan-India geocoder.
                   </div>
                 )}
               </div>
@@ -823,7 +823,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
         </div>
 
         {/* Layer Toggles Pill Strip */}
-        <div className="bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl p-1.5 flex flex-wrap items-center gap-1.5 text-[10px] font-mono shadow-lg text-slate-700">
+        <div className="bg-white/95 backdrop-blur-md border border-blue-200/80 rounded-xl p-1.5 flex flex-wrap items-center gap-1.5 text-[10px] font-mono shadow-lg text-slate-700">
           <button
             onClick={() => setShowZones(!showZones)}
             className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 ${
@@ -864,12 +864,12 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
         isSideCardExpanded ? 'w-[320px] sm:w-[370px]' : 'w-auto'
       }`}>
         {isSideCardExpanded ? (
-          <div className="bg-white/95 backdrop-blur-xl border border-slate-200 rounded-3xl p-4 sm:p-5 shadow-2xl text-slate-800 font-mono space-y-3.5 max-h-[calc(100vh-100px)] overflow-y-auto">
+          <div className="bg-white/95 backdrop-blur-xl border border-blue-200/80 rounded-3xl p-4 sm:p-5 shadow-2xl text-slate-800 font-mono space-y-3.5 max-h-[calc(100vh-100px)] overflow-y-auto">
             {/* Card Header with Collapse Button & Pan-India Mode Indicator */}
-            <div className="flex items-center justify-between pb-2.5 border-b border-slate-200">
+            <div className="flex items-center justify-between pb-2.5 border-b border-blue-100">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#FF6B6B] animate-pulse"></div>
-                <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider font-sans">
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></div>
+                <h3 className="text-xs font-black text-blue-950 uppercase tracking-wider font-sans">
                   {isPanIndia ? '🇮🇳 PAN-INDIA LIVE FLOOD MONITORING' : 'TACTICAL CATCHMENT INTEL'}
                 </h3>
               </div>
