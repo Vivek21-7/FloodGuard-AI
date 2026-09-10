@@ -2,20 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { 
   AlertTriangle, 
   Radio, 
-  Smartphone, 
-  Mail, 
-  CheckCircle2, 
+  CheckCircle2,
   Clock, 
   ShieldAlert, 
-  Building, 
   Navigation, 
-  Volume2, 
-  Send,
-  Users,
-  Waves,
-  RefreshCw,
-  Activity,
-  Cpu
+  RefreshCw, 
+  Activity, 
+  Cpu 
 } from 'lucide-react';
 import { PredictResponse, RiskLevel } from '../types';
 import { api } from '../services/api';
@@ -58,13 +51,6 @@ export const FloodAlertsTab: React.FC<FloodAlertsTabProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
-  // Notification settings form
-  const [smsNumber, setSmsNumber] = useState('+91 98765 43210');
-  const [emailDigest, setEmailDigest] = useState('district.magistrate@nic.in');
-  const [enableSoundSiren, setEnableSoundSiren] = useState(true);
-  const [enableInstantCap, setEnableInstantCap] = useState(true);
-  const [settingsSaved, setSettingsSaved] = useState(false);
-
   // Fetch real live multi-city predictions from backend
   const fetchLivePredictions = async () => {
     setIsLoading(true);
@@ -86,12 +72,6 @@ export const FloodAlertsTab: React.FC<FloodAlertsTabProps> = ({
     const interval = setInterval(fetchLivePredictions, 120000); // 2 min polling
     return () => clearInterval(interval);
   }, []);
-
-  const handleSaveSettings = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSettingsSaved(true);
-    setTimeout(() => setSettingsSaved(false), 3000);
-  };
 
   const filteredCities = citiesData.filter(c => {
     if (filter === 'ALL') return true;
@@ -186,9 +166,8 @@ export const FloodAlertsTab: React.FC<FloodAlertsTabProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* 🚨 Left/Main: Live Multi-City Predictions Feed (8 cols) */}
-        <div className="lg:col-span-8 space-y-4">
+      {/* 🚨 Live Multi-City Predictions Feed */}
+      <div className="space-y-4">
           {/* Feed Filter Bar */}
           <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs flex flex-wrap items-center justify-between gap-3 font-mono">
             <div className="flex items-center gap-2">
@@ -337,89 +316,6 @@ export const FloodAlertsTab: React.FC<FloodAlertsTabProps> = ({
               );
             })}
           </div>
-        </div>
-
-        {/* ⚙️ Right: SMS & Automated Broadcast Dispatcher (4 cols) */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs font-mono space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-              <Smartphone className="w-4 h-4 text-blue-600" />
-              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider font-sans">
-                AUTOMATED BROADCAST DISPATCHER
-              </h3>
-            </div>
-
-            <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-slate-700 block">
-                  DISTRICT MAGISTRATE HOTLINE:
-                </label>
-                <div className="relative">
-                  <Smartphone className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                  <input
-                    type="text"
-                    value={smsNumber}
-                    onChange={(e) => setSmsNumber(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-slate-900 focus:border-blue-500 outline-none font-mono"
-                    placeholder="+91..."
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-slate-700 block">
-                  OFFICIAL SITREP EMAIL DIGEST:
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                  <input
-                    type="email"
-                    value={emailDigest}
-                    onChange={(e) => setEmailDigest(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-slate-900 focus:border-blue-500 outline-none font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <label className="flex items-center justify-between cursor-pointer">
-                  <span className="text-slate-700 text-[11px]">Audio Siren on High Risk</span>
-                  <input
-                    type="checkbox"
-                    checked={enableSoundSiren}
-                    onChange={(e) => setEnableSoundSiren(e.target.checked)}
-                    className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
-                  />
-                </label>
-
-                <label className="flex items-center justify-between cursor-pointer">
-                  <span className="text-slate-700 text-[11px]">Forward to NDMA CAP Gateway</span>
-                  <input
-                    type="checkbox"
-                    checked={enableInstantCap}
-                    onChange={(e) => setEnableInstantCap(e.target.checked)}
-                    className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
-                  />
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>SAVE DISPATCH SETTINGS</span>
-              </button>
-
-              {settingsSaved && (
-                <div className="p-2 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-center text-[10px] font-bold flex items-center justify-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>DISPATCH GATEWAY PROTOCOLS SAVED</span>
-                </div>
-              )}
-            </form>
-          </div>
-        </div>
       </div>
     </div>
   );
