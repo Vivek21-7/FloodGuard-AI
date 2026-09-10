@@ -49,6 +49,40 @@ const MapViewController: React.FC<{
   return null;
 };
 
+// Tactical Zoom and Recenter Controls
+const MapZoomControls: React.FC<{ 
+  onRecenter: () => void;
+}> = ({ onRecenter }) => {
+  const map = useMap();
+  return (
+    <div className="leaflet-bottom leaflet-left !bottom-6 !left-4 z-[400] flex flex-col gap-1.5 select-none pointer-events-auto">
+      <div className="flex flex-col bg-[#151b23]/95 backdrop-blur-md border border-[#263342] rounded-xl overflow-hidden shadow-2xl">
+        <button
+          onClick={() => map.zoomIn()}
+          className="w-9 h-9 flex items-center justify-center text-slate-200 hover:text-white hover:bg-[#263342] transition-colors border-b border-[#263342] font-mono font-bold text-lg active:bg-[#344458]"
+          title="Zoom In"
+        >
+          +
+        </button>
+        <button
+          onClick={() => map.zoomOut()}
+          className="w-9 h-9 flex items-center justify-center text-slate-200 hover:text-white hover:bg-[#263342] transition-colors font-mono font-bold text-lg active:bg-[#344458]"
+          title="Zoom Out"
+        >
+          −
+        </button>
+      </div>
+      <button
+        onClick={onRecenter}
+        className="w-9 h-9 flex items-center justify-center bg-[#151b23]/95 backdrop-blur-md border border-[#263342] rounded-xl shadow-2xl text-slate-200 hover:text-[#4ECDC4] hover:bg-[#263342] transition-colors"
+        title="Center on Target Basin"
+      >
+        <Compass className="w-4 h-4" />
+      </button>
+    </div>
+  );
+};
+
 // Map click listener
 const MapClickListener: React.FC<{
   onSelectLocation: (lat: number, lon: number, name?: string) => void;
@@ -204,6 +238,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
   const [showIncidents, setShowIncidents] = useState(true);
   const [isSideCardExpanded, setIsSideCardExpanded] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const riskLevel = predictionData?.prediction.risk_level || 'HIGH';
   const probPercent = predictionData?.prediction.flood_probability_percent || 78;
@@ -215,6 +250,72 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
     riskLevel === 'HIGH' ? '#f97316' :
     riskLevel === 'MODERATE' ? '#FFE66D' :
     '#4ECDC4';
+
+  // Search items catalog
+  const searchableCatalog = React.useMemo(() => {
+    const list: { name: string; type: string; lat: number; lon: number; badge: string }[] = [
+      { name: 'Wayanad (Chooralmala), Kerala', type: 'Catchment', lat: 11.5510, lon: 76.1260, badge: 'BASIN' },
+      { name: 'Kullu, Himachal Pradesh', type: 'Catchment', lat: 31.9579, lon: 77.1095, badge: 'BASIN' },
+      { name: 'Kedarnath, Uttarakhand', type: 'Catchment', lat: 30.7346, lon: 79.0669, badge: 'BASIN' },
+      { name: 'Cherrapunji, Meghalaya', type: 'Catchment', lat: 25.2702, lon: 91.7323, badge: 'BASIN' },
+      { name: 'Chiplun, Maharashtra', type: 'Catchment', lat: 17.5323, lon: 73.5186, badge: 'BASIN' },
+      { name: 'Dhemaji, Assam', type: 'Catchment', lat: 27.4833, lon: 94.5833, badge: 'BASIN' },
+      { name: 'Mandi, Himachal Pradesh', type: 'Catchment', lat: 31.7087, lon: 76.9320, badge: 'BASIN' },
+      { name: 'Shimla, Himachal Pradesh', type: 'Catchment', lat: 31.1048, lon: 77.1734, badge: 'BASIN' },
+      { name: 'Srinagar, Jammu & Kashmir', type: 'Catchment', lat: 34.0837, lon: 74.7973, badge: 'BASIN' },
+    ];
+
+    WATER_STATIONS.forEach(st => {
+      list.push({ name: st.name, type: 'CWC Gauge Station', lat: st.lat, lon: st.lon, badge: st.status });
+    });
+
+    EVACUATION_CENTERS.forEach(ev => {
+      list.push({ name: ev.name, type: 'Evacuation Shelter', lat: ev.lat, lon: ev.lon, badge: 'SHELTER' });
+    });
+
+    REALTIME_FLOOD_ZONES.forEach(z => {
+      list.push({ name: z.name, type: 'Flood Risk Zone', lat: z.polygon[0][0], lon: z.polygon[0][1], badge: z.severity });
+    });
+
+    return list;
+  }, []);
+
+  const searchResults = React.useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return searchableCatalog.filter(item => 
+      item.name.toLowerCase().includes(q) || 
+      item.type.toLowerCase().includes(q) ||
+      item.badge.toLowerCase().includes(q)
+    ).slice(0, 5);
+  }, [searchQuery, searchableCatalog]);
+
+  const handleSelectSearchResult = (lat: number, lon: number, name: string) => {
+    onSelectLocation(lat, lon, name);
+    setSearchQuery('');
+    setIsSearchFocused(false);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+
+    // Check if coordinates format: e.g. "31.708, 76.932"
+    const coordMatch = q.match(/^(-?\d+(\.\d+)?)[,\s]+(-?\d+(\.\d+)?)$/);
+    if (coordMatch) {
+      const lat = parseFloat(coordMatch[1]);
+      const lon = parseFloat(coordMatch[3]);
+      onSelectLocation(lat, lon, `Coordinates (${lat.toFixed(3)}°N, ${lon.toFixed(3)}°E)`);
+      setSearchQuery('');
+      setIsSearchFocused(false);
+      return;
+    }
+
+    if (searchResults.length > 0) {
+      handleSelectSearchResult(searchResults[0].lat, searchResults[0].lon, searchResults[0].name);
+    }
+  };
 
   return (
     <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-[#0f1419]">
@@ -233,6 +334,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
 
         <MapViewController targetLocation={selectedLocation} />
         <MapClickListener onSelectLocation={onSelectLocation} />
+        <MapZoomControls onRecenter={() => onSelectLocation(selectedLocation.latitude, selectedLocation.longitude, selectedLocation.name)} />
 
         {/* Real-time Flood Risk Zone Overlays */}
         {showZones && REALTIME_FLOOD_ZONES.map((zone) => (
@@ -352,16 +454,59 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
 
       {/* 🔍 Floating Map Search & Layer Controls (Top Left) */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-2 max-w-sm w-full select-none">
-        {/* Search Bar */}
-        <div className="bg-[#151b23]/95 backdrop-blur-md border border-[#263342] rounded-2xl p-2 flex items-center gap-2 shadow-xl">
-          <Search className="w-4 h-4 text-slate-400 ml-1.5 flex-shrink-0" />
-          <input
-            type="text"
-            placeholder="Search town, station or coordinates..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-transparent text-xs font-mono text-white placeholder:text-slate-500 outline-none"
-          />
+        {/* Search Bar with Submit & Autocomplete */}
+        <div className="relative">
+          <form 
+            onSubmit={handleSearchSubmit}
+            className="bg-[#151b23]/95 backdrop-blur-md border border-[#263342] rounded-2xl p-2 flex items-center gap-2 shadow-xl focus-within:border-[#4ECDC4] transition-all"
+          >
+            <Search className="w-4 h-4 text-slate-400 ml-1.5 flex-shrink-0" />
+            <input
+              type="text"
+              placeholder="Search town, station, or lat,lon..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              className="w-full bg-transparent text-xs font-mono text-white placeholder:text-slate-500 outline-none"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="text-slate-400 hover:text-white text-xs px-1.5"
+              >
+                ✕
+              </button>
+            )}
+          </form>
+
+          {/* Autocomplete Dropdown */}
+          {isSearchFocused && searchResults.length > 0 && (
+            <div className="absolute top-full mt-1.5 left-0 right-0 bg-[#151b23]/98 backdrop-blur-xl border border-[#263342] rounded-2xl shadow-2xl overflow-hidden z-30 font-mono text-xs">
+              <div className="p-2 border-b border-[#263342] text-[10px] text-slate-400 flex items-center justify-between">
+                <span>SUGGESTIONS</span>
+                <span>PRESS ENTER TO JUMP</span>
+              </div>
+              <div className="max-h-56 overflow-y-auto divide-y divide-[#263342]/50">
+                {searchResults.map((item, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleSelectSearchResult(item.lat, item.lon, item.name)}
+                    className="w-full p-2.5 text-left hover:bg-white/10 flex items-center justify-between transition-colors text-slate-200"
+                  >
+                    <div className="truncate pr-2">
+                      <div className="font-bold text-white truncate">{item.name}</div>
+                      <div className="text-[10px] text-slate-400">{item.type}</div>
+                    </div>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-bold flex-shrink-0">
+                      {item.badge}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Layer Toggles Pill Strip */}
