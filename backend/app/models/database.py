@@ -82,8 +82,11 @@ class Alert(Base):
     expires_at = Column(DateTime)
     message = Column(Text)
 
+from sqlalchemy.pool import NullPool
+
 engine = create_engine(
     settings.DATABASE_URL, 
+    poolclass=NullPool,
     connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
 )
 
@@ -101,8 +104,9 @@ def init_db():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
-        # Seed villages if empty
-        if db.query(Village).count() == 0:
+        # Seed villages (refresh if fewer than 20)
+        if db.query(Village).count() < 20:
+            db.query(Village).delete()
             villages_file = DATA_DIR / "demo" / "villages.json"
             if villages_file.exists():
                 with open(villages_file, "r", encoding="utf-8") as f:
@@ -110,7 +114,7 @@ def init_db():
                     for item in villages_data:
                         v = Village(
                             name=item.get("name"),
-                            district=item.get("district", "Himachal Pradesh"),
+                            district=f"{item.get('district', '')}, {item.get('state', '')}",
                             latitude=item.get("latitude"),
                             longitude=item.get("longitude"),
                             population=item.get("population", 5000),
@@ -119,10 +123,11 @@ def init_db():
                         )
                         db.add(v)
                     db.commit()
-                    logger.info("Successfully seeded demo villages into database.")
+                    logger.info("Successfully seeded 28 Pan-India settlements into database.")
 
-        # Seed historical events if empty
-        if db.query(HistoricalEvent).count() == 0:
+        # Seed historical events (refresh if fewer than 10)
+        if db.query(HistoricalEvent).count() < 10:
+            db.query(HistoricalEvent).delete()
             events_file = DATA_DIR / "demo" / "historical_events.json"
             if events_file.exists():
                 with open(events_file, "r", encoding="utf-8") as f:
@@ -144,7 +149,7 @@ def init_db():
                         )
                         db.add(ev)
                     db.commit()
-                    logger.info("Successfully seeded demo historical events.")
+                    logger.info("Successfully seeded Pan-India historical disasters into database.")
 
         # Seed initial active demo alerts if empty
         if db.query(Alert).count() == 0:

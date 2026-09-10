@@ -1,3 +1,4 @@
+import asyncio
 from typing import Dict, Any, Optional
 from sqlalchemy.orm import Session
 from app.services.weather_service import weather_service
@@ -16,9 +17,11 @@ class PredictionService:
         lon = req.longitude
         loc_name = req.location_name or f"Area ({round(lat, 3)}°N, {round(lon, 3)}°E)"
 
-        # 1. Fetch environmental telemetry
-        env = await weather_service.get_environmental_data(lat, lon, loc_name)
-        terrain = await terrain_service.get_terrain_data(lat, lon)
+        # 1. Fetch environmental telemetry and terrain concurrently
+        env, terrain = await asyncio.gather(
+            weather_service.get_environmental_data(lat, lon, loc_name),
+            terrain_service.get_terrain_data(lat, lon)
+        )
         historical = historical_provider.get_nearby_events(db, lat, lon)
 
         weather = env["weather"]

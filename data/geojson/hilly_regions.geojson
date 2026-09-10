@@ -1,6 +1,6 @@
 {
   "type": "FeatureCollection",
-  "name": "Himachal_Pradesh_Hilly_Catchments",
+  "name": "Pan_India_Vulnerable_Hilly_Catchments",
   "features": [
     {
       "type": "Feature",
@@ -8,7 +8,8 @@
         "id": "BASIN-01",
         "name": "Upper Beas River Basin (Kullu - Manali)",
         "river": "Beas",
-        "district": "Kullu",
+        "region": "Western Himalayas",
+        "state": "Himachal Pradesh",
         "risk_classification": "HIGH",
         "elevation_range_m": "1100 - 3800",
         "mean_slope_deg": 32.5
@@ -33,8 +34,9 @@
       "properties": {
         "id": "BASIN-02",
         "name": "Mid Beas & Suketi Khad Basin (Mandi)",
-        "river": "Beas",
-        "district": "Mandi",
+        "river": "Beas & Suketi Confluence",
+        "region": "Western Himalayas",
+        "state": "Himachal Pradesh",
         "risk_classification": "CRITICAL",
         "elevation_range_m": "750 - 2100",
         "mean_slope_deg": 24.0
@@ -58,23 +60,24 @@
       "type": "Feature",
       "properties": {
         "id": "BASIN-03",
-        "name": "Sutlej Tributary Ridge Zone (Shimla)",
-        "river": "Sutlej Tributary",
-        "district": "Shimla",
-        "risk_classification": "MODERATE",
-        "elevation_range_m": "1400 - 2600",
-        "mean_slope_deg": 28.0
+        "name": "Alaknanda & Mandakini River Basins (Kedarnath - Joshimath)",
+        "river": "Alaknanda & Mandakini",
+        "region": "Western Himalayas",
+        "state": "Uttarakhand",
+        "risk_classification": "CRITICAL",
+        "elevation_range_m": "1400 - 4500",
+        "mean_slope_deg": 38.0
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [77.05, 31.05],
-            [77.30, 31.08],
-            [77.35, 31.25],
-            [77.18, 31.32],
-            [77.02, 31.20],
-            [77.05, 31.05]
+            [78.85, 30.25],
+            [79.35, 30.30],
+            [79.80, 30.65],
+            [79.60, 30.95],
+            [79.05, 30.85],
+            [78.85, 30.25]
           ]
         ]
       }
@@ -83,23 +86,24 @@
       "type": "Feature",
       "properties": {
         "id": "BASIN-04",
-        "name": "Giri & Gambhar Watersheds (Solan)",
-        "river": "Giri",
-        "district": "Solan",
-        "risk_classification": "LOW",
-        "elevation_range_m": "900 - 1800",
-        "mean_slope_deg": 22.0
+        "name": "Teesta River High-Altitude Basin (Chungthang - Gangtok)",
+        "river": "Teesta",
+        "region": "Northeast / Eastern Himalayas",
+        "state": "Sikkim",
+        "risk_classification": "CRITICAL",
+        "elevation_range_m": "1200 - 5200",
+        "mean_slope_deg": 36.5
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [77.00, 30.80],
-            [77.28, 30.82],
-            [77.30, 31.02],
-            [77.10, 31.05],
-            [76.95, 30.92],
-            [77.00, 30.80]
+            [88.40, 27.20],
+            [88.75, 27.25],
+            [88.85, 27.80],
+            [88.50, 27.95],
+            [88.25, 27.50],
+            [88.40, 27.20]
           ]
         ]
       }
@@ -108,23 +112,76 @@
       "type": "Feature",
       "properties": {
         "id": "BASIN-05",
-        "name": "Govind Sagar Inflow Basin (Bilaspur)",
-        "river": "Sutlej",
-        "district": "Bilaspur",
-        "risk_classification": "LOW",
-        "elevation_range_m": "550 - 1100",
-        "mean_slope_deg": 17.5
+        "name": "Kabini & Chaliyar Escarpment (Wayanad)",
+        "river": "Kabini & Chaliyar Feeder",
+        "region": "Western Ghats",
+        "state": "Kerala",
+        "risk_classification": "CRITICAL",
+        "elevation_range_m": "650 - 2100",
+        "mean_slope_deg": 35.0
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [76.60, 31.20],
-            [76.88, 31.22],
-            [76.90, 31.42],
-            [76.70, 31.48],
-            [76.55, 31.32],
-            [76.60, 31.20]
+            [75.90, 11.45],
+            [76.35, 11.50],
+            [76.40, 11.90],
+            [76.05, 11.95],
+            [75.85, 11.65],
+            [75.90, 11.45]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "BASIN-06",
+        "name": "Vashishti River Flash Corridor (Chiplun - Mahabaleshwar)",
+        "river": "Vashishti",
+        "region": "Western Ghats",
+        "state": "Maharashtra",
+        "risk_classification": "CRITICAL",
+        "elevation_range_m": "20 - 1400",
+        "mean_slope_deg": 28.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [73.35, 17.40],
+            [73.75, 17.45],
+            [73.85, 17.95],
+            [73.50, 18.05],
+            [73.30, 17.65],
+            [73.35, 17.40]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "BASIN-07",
+        "name": "Upper Brahmaputra & Jiadhall Basin (Dhemaji)",
+        "river": "Brahmaputra & Jiadhall",
+        "region": "Northeast India",
+        "state": "Assam",
+        "risk_classification": "HIGH",
+        "elevation_range_m": "80 - 1500",
+        "mean_slope_deg": 14.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [94.20, 27.20],
+            [94.90, 27.30],
+            [95.10, 27.85],
+            [94.45, 27.95],
+            [94.15, 27.50],
+            [94.20, 27.20]
           ]
         ]
       }

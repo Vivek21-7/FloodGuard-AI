@@ -24,11 +24,17 @@ import {
 import { ShieldCheck, LifeBuoy, AlertTriangle } from 'lucide-react';
 
 const DEMO_PRESET_COORDINATES: Record<string, { lat: number; lon: number; name: string }> = {
+  Wayanad: { lat: 11.5510, lon: 76.1260, name: 'Wayanad (Chooralmala), Kerala' },
   Kullu: { lat: 31.9579, lon: 77.1095, name: 'Kullu, Himachal Pradesh' },
-  Shimla: { lat: 31.7724, lon: 77.1706, name: 'Shimla, Himachal Pradesh' },
-  Mandi: { lat: 32.2396, lon: 76.9227, name: 'Mandi, Himachal Pradesh' },
-  Solan: { lat: 30.9100, lon: 77.1633, name: 'Solan, Himachal Pradesh' },
-  Bilaspur: { lat: 31.3175, lon: 76.7581, name: 'Bilaspur, Himachal Pradesh' },
+  Kedarnath: { lat: 30.7346, lon: 79.0669, name: 'Kedarnath, Uttarakhand' },
+  Cherrapunji: { lat: 25.2702, lon: 91.7323, name: 'Cherrapunji (Sohra), Meghalaya' },
+  Chungthang: { lat: 27.6039, lon: 88.6464, name: 'Chungthang, Sikkim' },
+  Chiplun: { lat: 17.5323, lon: 73.5186, name: 'Chiplun, Maharashtra' },
+  Dhemaji: { lat: 27.4833, lon: 94.5833, name: 'Dhemaji, Assam' },
+  Mandi: { lat: 31.7087, lon: 76.9320, name: 'Mandi, Himachal Pradesh' },
+  Shimla: { lat: 31.1048, lon: 77.1734, name: 'Shimla, Himachal Pradesh' },
+  Srinagar: { lat: 34.0837, lon: 74.7973, name: 'Srinagar, Jammu & Kashmir' },
+  Munnar: { lat: 10.0889, lon: 77.0595, name: 'Munnar, Kerala' },
 };
 
 export const App: React.FC = () => {
@@ -130,16 +136,28 @@ export const App: React.FC = () => {
     const target = DEMO_PRESET_COORDINATES[presetName];
     if (target) {
       // Adjust preset sliders to reflect that region's typical scenario
-      if (presetName === 'Kullu') {
+      if (presetName === 'Wayanad') {
+        setDemoControls({ rainfall: 220, soilMoisture: 94, waterLevel: 4.8, temperature: 22 });
+      } else if (presetName === 'Kullu') {
         setDemoControls({ rainfall: 125, soilMoisture: 72, waterLevel: 2.8, temperature: 24 });
+      } else if (presetName === 'Kedarnath') {
+        setDemoControls({ rainfall: 195, soilMoisture: 91, waterLevel: 4.5, temperature: 14 });
+      } else if (presetName === 'Cherrapunji') {
+        setDemoControls({ rainfall: 260, soilMoisture: 96, waterLevel: 5.2, temperature: 21 });
+      } else if (presetName === 'Chungthang') {
+        setDemoControls({ rainfall: 140, soilMoisture: 88, waterLevel: 3.9, temperature: 16 });
+      } else if (presetName === 'Chiplun') {
+        setDemoControls({ rainfall: 210, soilMoisture: 92, waterLevel: 4.6, temperature: 27 });
+      } else if (presetName === 'Dhemaji') {
+        setDemoControls({ rainfall: 175, soilMoisture: 89, waterLevel: 3.8, temperature: 28 });
       } else if (presetName === 'Mandi') {
         setDemoControls({ rainfall: 182, soilMoisture: 89, waterLevel: 4.1, temperature: 26 });
       } else if (presetName === 'Shimla') {
         setDemoControls({ rainfall: 54, soilMoisture: 58, waterLevel: 1.4, temperature: 19 });
-      } else if (presetName === 'Solan') {
-        setDemoControls({ rainfall: 12, soilMoisture: 38, waterLevel: 0.8, temperature: 23 });
-      } else if (presetName === 'Bilaspur') {
-        setDemoControls({ rainfall: 8, soilMoisture: 34, waterLevel: 1.1, temperature: 28 });
+      } else if (presetName === 'Srinagar') {
+        setDemoControls({ rainfall: 65, soilMoisture: 62, waterLevel: 1.8, temperature: 17 });
+      } else if (presetName === 'Munnar') {
+        setDemoControls({ rainfall: 155, soilMoisture: 85, waterLevel: 3.2, temperature: 20 });
       }
       setSelectedLocation({ latitude: target.lat, longitude: target.lon, name: target.name });
     }
@@ -202,7 +220,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950">
+    <div className="min-h-screen bg-slate-50/70 text-slate-900 flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
       {/* Header / Navbar */}
       <Navbar
         activeTab={activeTab}
@@ -216,8 +234,8 @@ export const App: React.FC = () => {
       {/* Main Page Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {networkError && (
-          <div className="mb-4 bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          <div className="mb-4 bg-amber-50 border border-amber-200 text-amber-900 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm">
+            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
             <span>{networkError}</span>
           </div>
         )}
@@ -291,17 +309,17 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950/80 py-6 text-xs text-slate-500 backdrop-blur-md">
+      <footer className="border-t border-slate-200/80 bg-white/90 py-6 text-xs text-slate-500 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-300">FloodGuard AI</span>
+            <span className="font-bold text-slate-800">FloodGuard AI</span>
             <span>•</span>
             <span>SIH 26192 (Ministry of Home Affairs / NDRF)</span>
           </div>
           <div className="flex items-center gap-4 text-[11px]">
             <span>Data Providers: Open-Meteo • IMD • India-WRIS • USGS DEM</span>
             <span>•</span>
-            <span className="text-cyan-400 font-mono">v1.0.0-hackathon</span>
+            <span className="text-indigo-600 font-mono font-medium">v1.0.0-hackathon</span>
           </div>
         </div>
       </footer>
