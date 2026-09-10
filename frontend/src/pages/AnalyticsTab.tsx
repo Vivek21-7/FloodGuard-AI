@@ -1,16 +1,8 @@
 import React, { useState } from 'react';
 import { 
   BarChart3, 
-  TrendingUp, 
-  Clock, 
-  Users, 
-  Activity, 
-  Database, 
   Cpu, 
-  Droplets,
-  Layers,
-  FileSpreadsheet,
-  CheckCircle2
+  Layers
 } from 'lucide-react';
 import { PredictResponse, ModelInfoResponse, HistoricalEventItem } from '../types';
 
@@ -48,27 +40,10 @@ const XAI_FEATURES = [
 ];
 
 export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
-  predictionData,
   modelInfo,
   historicalEvents = []
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'progression' | 'population' | 'historical' | 'model'>('progression');
-
-  // Dynamic forecast progression items projected from live ML inference
-  const liveProb = predictionData?.prediction?.flood_probability_percent ?? 18;
-  const rainFactor = predictionData?.contributing_factors?.find(f => f.factor.toLowerCase().includes('rain') || f.factor.toLowerCase().includes('precip'));
-  const liveRain = rainFactor ? rainFactor.current_value : 0.0;
-
-  const hourlyForecast = (predictionData?.forecast_6h && predictionData.forecast_6h.length > 0)
-    ? predictionData.forecast_6h
-    : (predictionData?.forecast_3h || [
-        { hour: 1, flood_probability_percent: Math.max(5, Math.round(liveProb * 0.9)), rainfall_mm: +(liveRain * 0.2).toFixed(1), probability_percent: Math.max(5, Math.round(liveProb * 0.9)) },
-        { hour: 2, flood_probability_percent: liveProb, rainfall_mm: +(liveRain * 0.35).toFixed(1), probability_percent: liveProb },
-        { hour: 3, flood_probability_percent: Math.round(liveProb * 1.05), rainfall_mm: +(liveRain * 0.45).toFixed(1), probability_percent: Math.round(liveProb * 1.05) },
-        { hour: 4, flood_probability_percent: Math.max(5, Math.round(liveProb * 0.95)), rainfall_mm: +(liveRain * 0.3).toFixed(1), probability_percent: Math.max(5, Math.round(liveProb * 0.95)) },
-        { hour: 5, flood_probability_percent: Math.max(5, Math.round(liveProb * 0.85)), rainfall_mm: +(liveRain * 0.15).toFixed(1), probability_percent: Math.max(5, Math.round(liveProb * 0.85)) },
-        { hour: 6, flood_probability_percent: Math.max(5, Math.round(liveProb * 0.75)), rainfall_mm: 0.0, probability_percent: Math.max(5, Math.round(liveProb * 0.75)) },
-      ]);
+  const [activeSubTab, setActiveSubTab] = useState<'population' | 'historical' | 'model'>('population');
 
   const maxPop = Math.max(...BASIN_POPULATION_DATA.map(d => d.population));
   const maxEvents = Math.max(...DECADAL_HISTORICAL_DATA.map(d => d.events));
@@ -92,7 +67,6 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
         {/* View Switcher Pills */}
         <div className="flex items-center gap-1.5 text-xs">
           {[
-            { id: 'progression', label: 'Flood Progression' },
             { id: 'population', label: 'Affected Population' },
             { id: 'historical', label: 'Historical Graphs' },
             { id: 'model', label: 'Model Timeline' },
@@ -111,77 +85,6 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
           ))}
         </div>
       </div>
-
-      {/* 1. Flood Risk Progression (Hourly Forecast Trajectory) */}
-      {activeSubTab === 'progression' && (
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs font-mono space-y-6">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-            <div>
-              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-sans">
-                PROSPECTIVE FLOOD RISK PROGRESSION (+1H TO +6H)
-              </h2>
-              <span className="text-xs text-slate-500 font-sans">
-                Real-time ML flood probability curve computed via CWC catchment routing: dLevel/dt = (Q_in - Q_out) / A
-              </span>
-            </div>
-            <span className="text-[10px] px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 font-bold">
-              PEAK SURGE AT +3H
-            </span>
-          </div>
-
-          {/* Bar / Timeline Chart */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-            {hourlyForecast.map((item: any, idx: number) => {
-              const prob = item.flood_probability_percent || Math.round((item.flood_probability || 0) * 100);
-              const barHeight = Math.min(Math.max(prob, 15), 100);
-              const isPeak = prob >= 75;
-
-              return (
-                <div 
-                  key={idx}
-                  className={`p-4 rounded-2xl border flex flex-col justify-between items-center transition-all ${
-                    isPeak 
-                      ? 'bg-rose-50/60 border-rose-200 shadow-xs' 
-                      : 'bg-slate-50 border-slate-200'
-                  }`}
-                >
-                  <div className="text-center w-full">
-                    <span className="text-xs font-bold text-slate-700">+{item.hour || (idx + 1)}h Ahead</span>
-                    <div className="text-2xl font-black text-slate-900 mt-1">
-                      {prob}%
-                    </div>
-                    <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded mt-1 inline-block ${
-                      prob >= 80 ? 'bg-rose-100 text-rose-800' :
-                      prob >= 60 ? 'bg-amber-100 text-amber-800' :
-                      'bg-teal-100 text-teal-800'
-                    }`}>
-                      {prob >= 80 ? 'CRITICAL' : prob >= 60 ? 'WARNING' : 'MODERATE'}
-                    </span>
-                  </div>
-
-                  {/* Visual Bar Column */}
-                  <div className="w-full bg-slate-200/80 h-32 rounded-xl my-3 p-1.5 flex flex-col justify-end">
-                    <div 
-                      className={`w-full rounded-lg transition-all duration-700 ${
-                        prob >= 80 ? 'bg-gradient-to-t from-rose-600 to-[#FF6B6B]' :
-                        prob >= 60 ? 'bg-gradient-to-t from-amber-600 to-amber-400' :
-                        'bg-gradient-to-t from-teal-600 to-teal-400'
-                      }`}
-                      style={{ height: `${barHeight}%` }}
-                    />
-                  </div>
-
-                  {/* Hourly Telemetry Detail */}
-                  <div className="text-[10px] text-slate-500 space-y-0.5 w-full text-center">
-                    <div>🌧 {item.rainfall_mm} mm rain</div>
-                    <div>Pop: {Math.round(item.probability_percent || 0)}%</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
       {/* 2. Affected Population by Basin */}
       {activeSubTab === 'population' && (
