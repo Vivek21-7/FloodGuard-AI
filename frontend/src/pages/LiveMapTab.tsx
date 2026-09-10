@@ -28,7 +28,8 @@ import {
   ArrowLeft,
   Flame,
   Droplets,
-  Activity
+  Activity,
+  Loader2
 } from 'lucide-react';
 import { PredictResponse, RiskLevel, LocationResult } from '../types';
 
@@ -367,6 +368,7 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
   onSelectLocation,
   predictionData,
   isLoading,
+  onSearchQuery,
   onOpenAlertDispatcher
 }) => {
   const [showZones, setShowZones] = useState(true);
@@ -376,6 +378,44 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
   const [isSideCardExpanded, setIsSideCardExpanded] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [remoteResults, setRemoteResults] = useState<LocationResult[]>([]);
+  const [isSearchingRemote, setIsSearchingRemote] = useState(false);
+  const searchContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Close search dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Debounced live search querying backend database & OSM geocoder
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 2 || !onSearchQuery) {
+      setRemoteResults([]);
+      setIsSearchingRemote(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearchingRemote(true);
+      try {
+        const results = await onSearchQuery(q);
+        setRemoteResults(results || []);
+      } catch (err) {
+        console.warn('Live location search error:', err);
+      } finally {
+        setIsSearchingRemote(false);
+      }
+    }, 220);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, onSearchQuery]);
 
   // 2-Hour Rolling Model Update countdown timer
   const [cycleCountdown, setCycleCountdown] = useState<string>('01:59:59');
@@ -458,26 +498,97 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
     return list;
   }, []);
 
-  const searchResults = React.useMemo(() => {
+  // Combined Search Results: Coordinates + Local River Catalog + Remote DB/Nominatim
+  const combinedSearchResults = React.useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return [];
-    return searchableCatalog.filter(item => 
+
+    const list: { name: string; type: string; lat: number; lon: number; badge: string }[] = [];
+
+    // 1. Check if user typed direct GPS coordinates (e.g. "31.95, 77.10")
+    const coordMatch = q.match(/^(-?\d+(\.\d+)?)[,\s]+(-?\d+(\.\d+)?)$/);
+    if (coordMatch) {
+      const lat = parseFloat(coordMatch[1]);
+      const lon = parseFloat(coordMatch[3]);
+      if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+        list.push({
+          name: `Direct GPS (${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E)`,
+          type: 'Coordinate Coordinate Point',
+          lat,
+          lon,
+          badge: 'COORDINATES'
+        });
+      }
+    }
+
+    // 2. Local River / Basin / Gauge Matches
+    const localMatches = searchableCatalog.filter(item => 
       item.name.toLowerCase().includes(q) || 
       item.type.toLowerCase().includes(q) ||
       item.badge.toLowerCase().includes(q)
-    ).slice(0, 6);
-  }, [searchQuery, searchableCatalog]);
+    );
+    list.push(...localMatches);
+
+    // 3. Remote Backend & OSM Geocoding Matches
+    remoteResults.forEach(r => {
+      if (!list.some(existing => existing.name.toLowerCase() === r.name.toLowerCase())) {
+        list.push({
+          name: r.name,
+          type: r.type ? `${r.type.toUpperCase()} (India)` : 'Settlement / District',
+          lat: r.latitude,
+          lon: r.longitude,
+          badge: 'GEO'
+        });
+      }
+    });
+
+    return list.slice(0, 8);
+  }, [searchQuery, searchableCatalog, remoteResults]);
 
   const handleSelectSearchResult = (lat: number, lon: number, name: string) => {
     onSelectLocation(lat, lon, name);
     setSearchQuery('');
+    setRemoteResults([]);
     setIsSearchFocused(false);
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchResults.length > 0) {
-      handleSelectSearchResult(searchResults[0].lat, searchResults[0].lon, searchResults[0].name);
+    const q = searchQuery.trim();
+    if (!q) return;
+
+    // Check if coordinates
+    const coordMatch = q.match(/^(-?\d+(\.\d+)?)[,\s]+(-?\d+(\.\d+)?)$/);
+    if (coordMatch) {
+      const lat = parseFloat(coordMatch[1]);
+      const lon = parseFloat(coordMatch[3]);
+      handleSelectSearchResult(lat, lon, `Coordinates (${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E)`);
+      return;
+    }
+
+    if (combinedSearchResults.length > 0) {
+      handleSelectSearchResult(
+        combinedSearchResults[0].lat,
+        combinedSearchResults[0].lon,
+        combinedSearchResults[0].name
+      );
+      return;
+    }
+
+    // Immediate fallback query if user hit enter quickly
+    if (onSearchQuery) {
+      setIsSearchingRemote(true);
+      try {
+        const res = await onSearchQuery(q);
+        if (res && res.length > 0) {
+          handleSelectSearchResult(res[0].latitude, res[0].longitude, res[0].name);
+          return;
+        }
+      } catch (err) {
+        console.warn('Search submit fetch failed:', err);
+      } finally {
+        setIsSearchingRemote(false);
+      }
     }
   };
 
@@ -635,26 +746,37 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
       </MapContainer>
 
       {/* 🔍 Floating Map Search & Layer Controls (Top Left) */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2 max-w-sm w-full select-none">
+      <div ref={searchContainerRef} className="absolute top-4 left-4 z-10 flex flex-col gap-2 max-w-sm w-full select-none">
         {/* Search Bar with Submit & Autocomplete */}
         <div className="relative">
           <form 
             onSubmit={handleSearchSubmit}
             className="bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl p-2 flex items-center gap-2 shadow-lg focus-within:border-rose-400 transition-all"
           >
-            <Search className="w-4 h-4 text-slate-400 ml-1.5 flex-shrink-0" />
+            {isSearchingRemote ? (
+              <Loader2 className="w-4 h-4 text-indigo-600 animate-spin ml-1.5 flex-shrink-0" />
+            ) : (
+              <Search className="w-4 h-4 text-slate-400 ml-1.5 flex-shrink-0" />
+            )}
             <input
               type="text"
               placeholder="Search Indian city, river, state, or lat,lon..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setIsSearchFocused(true);
+              }}
               onFocus={() => setIsSearchFocused(true)}
               className="w-full bg-transparent text-xs font-mono text-slate-900 placeholder:text-slate-400 outline-none"
             />
             {searchQuery && (
               <button
                 type="button"
-                onClick={() => setSearchQuery('')}
+                onClick={() => {
+                  setSearchQuery('');
+                  setRemoteResults([]);
+                  setIsSearchFocused(false);
+                }}
                 className="text-slate-400 hover:text-slate-700 text-xs px-1.5"
               >
                 ✕
@@ -663,19 +785,22 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
           </form>
 
           {/* Autocomplete Dropdown */}
-          {isSearchFocused && searchResults.length > 0 && (
+          {isSearchFocused && (searchQuery.trim().length > 0) && (
             <div className="absolute top-full mt-1.5 left-0 right-0 bg-white/98 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-30 font-mono text-xs">
               <div className="p-2 border-b border-slate-200 text-[10px] text-slate-500 flex items-center justify-between">
-                <span>PAN-INDIA SUGGESTIONS</span>
-                <span>PRESS ENTER TO JUMP</span>
+                <span>PAN-INDIA LIVE SEARCH</span>
+                <span>{isSearchingRemote ? 'SEARCHING...' : 'ENTER TO JUMP'}</span>
               </div>
-              <div className="max-h-56 overflow-y-auto divide-y divide-slate-100">
-                {searchResults.map((item, idx) => (
+              <div className="max-h-60 overflow-y-auto divide-y divide-slate-100">
+                {combinedSearchResults.map((item, idx) => (
                   <button
                     key={idx}
                     type="button"
-                    onClick={() => handleSelectSearchResult(item.lat, item.lon, item.name)}
-                    className="w-full p-2.5 text-left hover:bg-slate-50 flex items-center justify-between transition-colors text-slate-800"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleSelectSearchResult(item.lat, item.lon, item.name);
+                    }}
+                    className="w-full p-2.5 text-left hover:bg-slate-50 flex items-center justify-between transition-colors text-slate-800 cursor-pointer"
                   >
                     <div className="truncate pr-2">
                       <div className="font-bold text-slate-900 truncate">{item.name}</div>
@@ -686,6 +811,12 @@ export const LiveMapTab: React.FC<LiveMapTabProps> = ({
                     </span>
                   </button>
                 ))}
+
+                {combinedSearchResults.length === 0 && !isSearchingRemote && (
+                  <div className="p-3 text-center text-[11px] text-slate-500 font-sans">
+                    No immediate match. Press <kbd className="font-mono bg-slate-100 px-1 py-0.5 rounded border border-slate-200 text-slate-700 font-bold">Enter</kbd> to search pan-India geocoder.
+                  </div>
+                )}
               </div>
             </div>
           )}

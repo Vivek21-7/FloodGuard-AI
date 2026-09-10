@@ -21,6 +21,7 @@ interface SidebarProps {
   activeAlertCount?: number;
   isMobileOpen: boolean;
   onCloseMobile: () => void;
+  onOpenProfile?: () => void;
 }
 
 const MENU_ITEMS = [
@@ -63,6 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeAlertCount = 3,
   isMobileOpen,
   onCloseMobile,
+  onOpenProfile,
 }) => {
   return (
     <>
@@ -170,25 +172,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </nav>
         </div>
 
-        {/* Bottom User Profile Section */}
+        {/* Bottom User Profile Section (Interactive) */}
         <div className="p-3 border-t border-slate-200">
-          <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
-            <div className="relative flex-shrink-0">
-              <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-white">
-                RV
+          <button
+            onClick={onOpenProfile}
+            className="w-full p-2.5 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 border border-slate-200 rounded-2xl flex items-center justify-between text-left transition-all group shadow-xs cursor-pointer"
+            title="Click to view Officer Profile, Readiness Status & Authorizations"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="relative flex-shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-white group-hover:scale-105 transition-transform">
+                  RV
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+
+              <div className="hidden lg:block md:hidden truncate">
+                <div className="text-xs font-bold text-slate-900 font-sans truncate flex items-center gap-1">
+                  <span>Cmdr. R. Verma</span>
+                </div>
+                <div className="text-[10px] text-slate-500 font-mono truncate">
+                  NDRF 14th Bn • On Duty
+                </div>
+              </div>
             </div>
 
-            <div className="hidden lg:block md:hidden truncate">
-              <div className="text-xs font-bold text-slate-900 font-sans truncate">
-                Cmdr. R. Verma
-              </div>
-              <div className="text-[10px] text-slate-500 font-mono truncate">
-                NDRF 14th Bn • On Duty
-              </div>
-            </div>
-          </div>
+            <ChevronRight className="hidden lg:block md:hidden w-4 h-4 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+          </button>
         </div>
       </aside>
     </>

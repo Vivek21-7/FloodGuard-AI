@@ -5,6 +5,7 @@ import { EmergencyTicker } from './components/EmergencyTicker';
 import { SitrepModal } from './components/SitrepModal';
 import { AlertDispatcherModal } from './components/AlertDispatcherModal';
 import { CitizenReportModal } from './components/CitizenReportModal';
+import { UserProfileModal } from './components/UserProfileModal';
 
 // Tabs
 import { LiveMapTab } from './pages/LiveMapTab';
@@ -70,6 +71,7 @@ export const App: React.FC = () => {
   const [isSitrepOpen, setIsSitrepOpen] = useState<boolean>(false);
   const [isDispatcherOpen, setIsDispatcherOpen] = useState<boolean>(false);
   const [isCitizenReportOpen, setIsCitizenReportOpen] = useState<boolean>(false);
+  const [isUserProfileOpen, setIsUserProfileOpen] = useState<boolean>(false);
 
   // Load telemetry & run prediction for the active coordinate
   const loadLocationData = useCallback(async (
@@ -199,6 +201,7 @@ export const App: React.FC = () => {
         activeAlertCount={3}
         isMobileOpen={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        onOpenProfile={() => setIsUserProfileOpen(true)}
       />
 
       {/* 2. Main Content Area (Remaining space) */}
@@ -305,6 +308,19 @@ export const App: React.FC = () => {
         onClose={() => setIsCitizenReportOpen(false)}
         defaultLocation={selectedLocation.name}
         defaultCoordinates={selectedLocation}
+      />
+
+      <UserProfileModal
+        isOpen={isUserProfileOpen}
+        onClose={() => setIsUserProfileOpen(false)}
+        onNavigateToSettings={() => {
+          setIsUserProfileOpen(false);
+          setActiveTab('settings');
+        }}
+        onOpenSitrep={() => {
+          setIsUserProfileOpen(false);
+          setIsSitrepOpen(true);
+        }}
       />
     </div>
   );
