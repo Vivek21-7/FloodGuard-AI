@@ -10,10 +10,13 @@ import {
   Bell, 
   RefreshCw,
   Cpu,
-  Save
+  Save,
+  Globe
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export const SettingsTab: React.FC = () => {
+  const { language, setLanguage, supportedLanguages } = useLanguage();
   const [criticalThreshold, setCriticalThreshold] = useState(80);
   const [warningThreshold, setWarningThreshold] = useState(60);
   const [syncIntervalSec, setSyncIntervalSec] = useState(15);
@@ -39,7 +42,7 @@ export const SettingsTab: React.FC = () => {
                 EMERGENCY SYSTEM CONFIGURATION & TELEMETRY PROTOCOLS
               </h1>
               <span className="text-xs text-slate-500 font-sans">
-                Operational threshold parameters, notification gateways, and data stream health
+                Operational threshold parameters, language localization, and notification gateways
               </span>
             </div>
           </div>
@@ -49,11 +52,41 @@ export const SettingsTab: React.FC = () => {
         </div>
 
         <form onSubmit={handleSave} className="space-y-6">
+          {/* Section 0: Language & Localization */}
+          <div className="space-y-3">
+            <h2 className="text-xs font-bold text-blue-700 uppercase tracking-wider flex items-center gap-2">
+              <Globe className="w-4 h-4 text-blue-600" />
+              <span>1. Application & Voice Assistant Language (7 Regional Languages)</span>
+            </h2>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+              {supportedLanguages.map((lang) => {
+                const isSelected = language === lang.code;
+                return (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => setLanguage(lang.code)}
+                    className={`p-3 rounded-2xl border text-center transition-all cursor-pointer font-sans active:scale-95 ${
+                      isSelected
+                        ? 'bg-blue-50 border-blue-600 text-blue-900 font-bold shadow-xs ring-2 ring-blue-500/20'
+                        : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="text-xl block mb-1">{lang.flag}</span>
+                    <span className="text-xs font-bold block truncate">{lang.nativeName}</span>
+                    <span className="text-[10px] text-slate-500 block truncate">{lang.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Section 1: Risk & Alarm Thresholds */}
-          <div className="space-y-4">
+          <div className="space-y-4 pt-4 border-t border-slate-100">
             <h2 className="text-xs font-bold text-rose-600 uppercase tracking-wider flex items-center gap-2">
               <Sliders className="w-4 h-4" />
-              <span>1. Flash Flood Alert Threshold Sensitivity</span>
+              <span>2. Flash Flood Alert Threshold Sensitivity</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

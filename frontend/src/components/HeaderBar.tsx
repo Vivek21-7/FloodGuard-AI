@@ -11,8 +11,10 @@ import {
   Compass,
   PhoneCall,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Globe
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface HeaderBarProps {
   onToggleMobileSidebar: () => void;
@@ -54,6 +56,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   onUseMyLocation,
   onOpenEmergencyDirectory,
 }) => {
+  const { language, setLanguage, supportedLanguages } = useLanguage();
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
   const [cycleTimeRemaining, setCycleTimeRemaining] = useState<string>('02:00:00');
@@ -181,8 +184,27 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         </div>
       </div>
 
-      {/* Right: GPS, SITREP, Mode, Refresh & Clock */}
-      <div className="flex items-center gap-2.5 font-mono">
+      {/* Right: Language Selector, GPS, Helplines, SITREP, Mode, Refresh & Clock */}
+      <div className="flex items-center gap-2 font-mono">
+        {/* Language Selector Dropdown */}
+        <div className="relative flex items-center">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs transition-all">
+            <Globe className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="bg-transparent text-xs font-semibold text-slate-800 outline-none cursor-pointer pr-1 font-sans"
+              title="Select Application Language"
+            >
+              {supportedLanguages.map((lang) => (
+                <option key={lang.code} value={lang.code} className="text-slate-900 bg-white">
+                  {lang.flag} {lang.nativeName}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         {/* GPS Locate Button */}
         {onUseMyLocation && (
           <button
