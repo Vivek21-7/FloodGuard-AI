@@ -21,13 +21,13 @@ interface AnalyticsTabProps {
 }
 
 const BASIN_POPULATION_DATA = [
-  { basin: 'Upper Beas (HP)', population: 65000, riskLevel: 'HIGH', color: '#f97316' },
-  { basin: 'Suketi Gorge (HP)', population: 42000, riskLevel: 'CRITICAL', color: '#FF6B6B' },
-  { basin: 'Chaliyar (Kerala)', population: 28500, riskLevel: 'CRITICAL', color: '#FF6B6B' },
-  { basin: 'Vashishti (MH)', population: 36000, riskLevel: 'CRITICAL', color: '#FF6B6B' },
-  { basin: 'Mandakini (UK)', population: 19000, riskLevel: 'HIGH', color: '#f97316' },
-  { basin: 'Brahmaputra (Assam)', population: 84000, riskLevel: 'ALERT', color: '#FFE66D' },
-  { basin: 'Musi (Telangana)', population: 52000, riskLevel: 'MODERATE', color: '#4ECDC4' },
+  { basin: 'Upper Beas Basin (HP)', population: 65000, vulnerability: 'HIGH', color: '#0284c7' },
+  { basin: 'Suketi Gorge (HP)', population: 42000, vulnerability: 'VERY HIGH', color: '#0284c7' },
+  { basin: 'Chaliyar Catchment (Kerala)', population: 28500, vulnerability: 'VERY HIGH', color: '#0284c7' },
+  { basin: 'Vashishti Basin (MH)', population: 36000, vulnerability: 'VERY HIGH', color: '#0284c7' },
+  { basin: 'Mandakini Valley (UK)', population: 19000, vulnerability: 'HIGH', color: '#0284c7' },
+  { basin: 'Brahmaputra Floodway (Assam)', population: 84000, vulnerability: 'VERY HIGH', color: '#0284c7' },
+  { basin: 'Musi River Basin (Telangana)', population: 52000, vulnerability: 'MODERATE', color: '#0d9488' },
 ];
 
 const DECADAL_HISTORICAL_DATA = [
@@ -54,16 +54,20 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'progression' | 'population' | 'historical' | 'model'>('progression');
 
-  // Forecast progression items from predictionData
+  // Dynamic forecast progression items projected from live ML inference
+  const liveProb = predictionData?.prediction?.flood_probability_percent ?? 18;
+  const rainFactor = predictionData?.contributing_factors?.find(f => f.factor.toLowerCase().includes('rain') || f.factor.toLowerCase().includes('precip'));
+  const liveRain = rainFactor ? rainFactor.current_value : 0.0;
+
   const hourlyForecast = (predictionData?.forecast_6h && predictionData.forecast_6h.length > 0)
     ? predictionData.forecast_6h
     : (predictionData?.forecast_3h || [
-        { hour: 1, flood_probability_percent: 45, rainfall_mm: 12, probability_percent: 70 },
-        { hour: 2, flood_probability_percent: 72, rainfall_mm: 28, probability_percent: 85 },
-        { hour: 3, flood_probability_percent: 88, rainfall_mm: 36, probability_percent: 90 },
-        { hour: 4, flood_probability_percent: 82, rainfall_mm: 22, probability_percent: 75 },
-        { hour: 5, flood_probability_percent: 64, rainfall_mm: 14, probability_percent: 60 },
-        { hour: 6, flood_probability_percent: 48, rainfall_mm: 6, probability_percent: 40 },
+        { hour: 1, flood_probability_percent: Math.max(5, Math.round(liveProb * 0.9)), rainfall_mm: +(liveRain * 0.2).toFixed(1), probability_percent: Math.max(5, Math.round(liveProb * 0.9)) },
+        { hour: 2, flood_probability_percent: liveProb, rainfall_mm: +(liveRain * 0.35).toFixed(1), probability_percent: liveProb },
+        { hour: 3, flood_probability_percent: Math.round(liveProb * 1.05), rainfall_mm: +(liveRain * 0.45).toFixed(1), probability_percent: Math.round(liveProb * 1.05) },
+        { hour: 4, flood_probability_percent: Math.max(5, Math.round(liveProb * 0.95)), rainfall_mm: +(liveRain * 0.3).toFixed(1), probability_percent: Math.max(5, Math.round(liveProb * 0.95)) },
+        { hour: 5, flood_probability_percent: Math.max(5, Math.round(liveProb * 0.85)), rainfall_mm: +(liveRain * 0.15).toFixed(1), probability_percent: Math.max(5, Math.round(liveProb * 0.85)) },
+        { hour: 6, flood_probability_percent: Math.max(5, Math.round(liveProb * 0.75)), rainfall_mm: 0.0, probability_percent: Math.max(5, Math.round(liveProb * 0.75)) },
       ]);
 
   const maxPop = Math.max(...BASIN_POPULATION_DATA.map(d => d.population));
@@ -185,14 +189,14 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
               <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-sans">
-                AFFECTED POPULATION RISK DISTRIBUTION BY BASIN
+                VULNERABLE RIPARIAN BASIN POPULATION DENSITY
               </h2>
               <span className="text-xs text-slate-500 font-sans">
-                Active census overlay cross-referenced with CWC inundation contour mapping
+                Census demographic overlay cross-referenced with CWC catchment inundation contours
               </span>
             </div>
             <span className="text-[10px] text-teal-700 font-bold bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
-              TOTAL: 326,500 CITIZENS
+              TOTAL RIPARIAN POPULATION: 326,500 CITIZENS
             </span>
           </div>
 
@@ -208,10 +212,10 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                         className="text-[9px] px-1.5 py-0.2 rounded font-black uppercase border"
                         style={{ color: item.color, backgroundColor: `${item.color}15`, borderColor: `${item.color}40` }}
                       >
-                        {item.riskLevel}
+                        {item.vulnerability} VULNERABILITY
                       </span>
                     </div>
-                    <span className="font-black text-slate-900">{item.population.toLocaleString('en-IN')} citizens at risk</span>
+                    <span className="font-black text-slate-900">{item.population.toLocaleString('en-IN')} riparian residents</span>
                   </div>
 
                   {/* Bar */}

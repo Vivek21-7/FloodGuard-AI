@@ -52,74 +52,24 @@ class PredictionService:
         if req.temperature_c is not None:
             weather["temperature_c"] = req.temperature_c
 
-        # If Pan-India overview is requested and no simulation overrides:
-        # Reflect national composite risk across India's active river basins
-        if is_pan_india and req.rainfall_1h_mm is None:
-            loc_name = "Pan-India (National Live Overview)"
-            # Composite national monsoonal parameters (aggregating high-risk catchments)
-            weather["rainfall_1h_mm"] = max(float(weather.get("rainfall_1h_mm", 0.0)), 14.5)
-            weather["rainfall_3h_mm"] = max(float(weather.get("rainfall_3h_mm", 0.0)), 38.0)
-            weather["rainfall_6h_mm"] = max(float(weather.get("rainfall_6h_mm", 0.0)), 72.0)
-            weather["forecast_rainfall_next_3h"] = max(float(weather.get("forecast_rainfall_next_3h", 0.0)), 42.0)
-            soil["soil_moisture_0_10cm_percent"] = max(float(soil.get("soil_moisture_0_10cm_percent", 35.0)), 76.5)
-            water["water_level_m"] = 3.1
-            water["danger_level_m"] = 2.8
-            water["discharge_cumecs"] = 390.0
-
-        # 2. Extract feature vector
+        # 2. Extract feature vector from genuine environmental telemetry
         features = extract_features(weather, soil, terrain, water, historical)
 
-        # 3. Model inference
+        # 3. Model inference (Random Forest classifier)
         prob, risk_level, confidence = predict_flood_risk(features)
-
-        # For Pan-India national composite, set representative national threat status
-        if is_pan_india and req.rainfall_1h_mm is None:
-            prob = max(prob, 0.76)
-            risk_level = "HIGH"
 
         # 4. Explainability & Contributing Factors
         factors = get_contributing_factors(features, prob)
-        if is_pan_india:
-            factors = [
-                {
-                    "factor": "Active Monsoonal Inundation Across High-Risk Belts",
-                    "importance": 0.34,
-                    "current_value": 72.0,
-                    "impact": "CRITICAL",
-                    "unit": "mm"
-                },
-                {
-                    "factor": "River Gauges Approaching/Exceeding Danger Level",
-                    "importance": 0.28,
-                    "current_value": 3.4,
-                    "impact": "HIGH",
-                    "unit": "m"
-                },
-                {
-                    "factor": "Saturated Catchment Soil Across Western Ghats & Foothills",
-                    "importance": 0.22,
-                    "current_value": 76.5,
-                    "impact": "HIGH",
-                    "unit": "%"
-                },
-                {
-                    "factor": "3-Hour Satellite Cloudburst & Torrential Inflow Projection",
-                    "importance": 0.16,
-                    "current_value": 42.0,
-                    "impact": "MODERATE",
-                    "unit": "mm"
-                }
-            ]
 
         # 5. Alert & Lead Time Computation
         warning, recommendations = generate_warning_and_actions(risk_level, loc_name)
         if is_pan_india:
-            warning["message"] = "NATIONAL FLOOD WATCH: Multi-basin vigilance active across 10 major river systems. 3-Hour early warning operational across all CWC monitoring posts. Predictions refresh every 2 hours."
+            warning["message"] = f"NATIONAL FLOOD WATCH: Multi-basin vigilance active across major river systems. Current composite threat: {risk_level} ({round(prob * 100)}%). Predictions recalculate every 2 hours."
             recommendations = [
-                "Alert SDRF and NDRF battalions in Western Ghats, Himachal, Uttarakhand, and Brahmaputra basins.",
-                "Mandate 3-hour early evacuation for low-lying settlements near Suketi Gorge, Chooralmala, and Jiadhal riverbanks.",
-                "Maintain real-time telemetry sync with CWC gauge telemetry stations and IMD radar mesh.",
-                "Deploy drone reconnaissance for vulnerable river embankments and bridges."
+                "Maintain real-time telemetry sync with CWC automatic gauge stations and IMD radar mesh.",
+                "Monitor 3-hour forward forecast curves for sudden cloudburst or precipitation spikes.",
+                "Keep SDRF and NDRF quick-response teams on standard standby vigil.",
+                "Verify sensor health across all active telemetry nodes."
             ]
 
         # 6. Compute 3-Hour Forward Early Warning Forecast & 2-Hour Rolling Cycle

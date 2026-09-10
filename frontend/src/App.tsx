@@ -245,6 +245,10 @@ export const App: React.FC = () => {
               selectedLocation={selectedLocation}
               onNavigateToMap={() => setActiveTab('map')}
               onOpenDispatcher={() => setIsDispatcherOpen(true)}
+              onSelectCityLocation={(lat, lon, name) => {
+                handleSelectLocation(lat, lon, name);
+                setActiveTab('map');
+              }}
             />
           )}
 
