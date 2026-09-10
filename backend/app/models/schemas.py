@@ -171,6 +171,9 @@ class PredictResponse(BaseModel):
     river_forecast: Optional[List[RiverForecastItem]] = []
     timeline: Optional[List[TimelineItem]] = []
     max_probability_next_3h: Optional[float] = 0.0
+    forecast_lead_hours: Optional[int] = 3
+    cycle_interval_hours: Optional[int] = 2
+    cycle_expires_at: Optional[str] = None
 
 class ForecastResponse(BaseModel):
     location: LocationCoordinates

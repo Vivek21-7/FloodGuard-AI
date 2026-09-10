@@ -11,7 +11,8 @@ _SEARCH_CACHE: Dict[str, List[Dict[str, Any]]] = {}
 
 # Comprehensive Pan-India Settlement & District Index
 PAN_INDIA_SETTLEMENTS: List[Dict[str, Any]] = [
-    # Telangana & Andhra Pradesh
+    # National Overview
+    {"name": "Pan-India (National Live Overview)", "latitude": 22.9734, "longitude": 78.6569, "type": "national"},
     {"name": "Hyderabad, Telangana", "latitude": 17.3850, "longitude": 78.4867, "type": "city"},
     {"name": "Vikarabad, Telangana", "latitude": 17.3364, "longitude": 77.9048, "type": "town"},
     {"name": "Ananthagiri Hills, Vikarabad, Telangana", "latitude": 17.3117, "longitude": 77.8631, "type": "village"},

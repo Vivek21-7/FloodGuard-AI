@@ -1,0 +1,5 @@
+[
+  {"type": "sms", "value": "+919876543210", "name": "Emergency Ops Center"},
+  {"type": "email", "value": "ndrf.control@gov.in", "name": "NDRF Control Room"},
+  {"type": "email", "value": "disaster.management@state.gov.in", "name": "SDMA Control"}
+]

@@ -25,13 +25,14 @@ interface HeaderBarProps {
 }
 
 const PRESET_LOCATIONS = [
+  'Pan-India',
   'Wayanad',
+  'Assam',
+  'Chiplun',
+  'Patna',
+  'Delhi',
   'Kullu',
   'Kedarnath',
-  'Cherrapunji',
-  'Chiplun',
-  'Dhemaji',
-  'Mandi',
 ];
 
 export const HeaderBar: React.FC<HeaderBarProps> = ({
@@ -47,6 +48,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 }) => {
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
+  const [cycleTimeRemaining, setCycleTimeRemaining] = useState<string>('02:00:00');
 
   useEffect(() => {
     const update = () => {
@@ -67,6 +69,20 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           year: 'numeric',
           timeZone: 'Asia/Kolkata',
         })
+      );
+
+      // 2-Hour Rolling Model Cycle countdown
+      const hours = now.getHours();
+      const nextCycleHour = hours % 2 === 0 ? hours + 2 : hours + 1;
+      const nextCycleTime = new Date(now);
+      nextCycleTime.setHours(nextCycleHour, 0, 0, 0);
+      const diffMs = nextCycleTime.getTime() - now.getTime();
+      const totalSec = Math.max(0, Math.floor(diffMs / 1000));
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      setCycleTimeRemaining(
+        `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
       );
     };
     update();
@@ -91,28 +107,49 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl shadow-xs">
           <MapPin className="w-4 h-4 text-rose-600 flex-shrink-0 animate-bounce" />
           <div className="flex flex-col">
-            <span className="text-[9px] text-slate-500 font-mono leading-none">TARGET BASIN:</span>
+            <span className="text-[9px] text-slate-500 font-mono leading-none">SCOPE / REGION:</span>
             <span className="text-xs font-bold text-slate-900 font-sans truncate max-w-[180px] sm:max-w-[240px]">
               {selectedLocation.name || `${selectedLocation.latitude.toFixed(3)}°N, ${selectedLocation.longitude.toFixed(3)}°E`}
             </span>
           </div>
         </div>
 
-        {/* Quick Regional Presets (Hidden on small mobile) */}
-        <div className="hidden xl:flex items-center gap-1.5 font-mono text-[11px]">
+        {/* 3-Hour Predictive Warning & 2-Hour Rolling Refresh Badges */}
+        <div className="hidden lg:flex items-center gap-2 font-mono text-[11px]">
+          <div 
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 font-bold shadow-xs cursor-help"
+            title="3-Hour Forecast Horizon: Flood risk is predicted 3 hours in advance before critical peak occurs."
+          >
+            <Clock className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
+            <span>3H LEAD PREDICTION</span>
+          </div>
+
+          <div 
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold shadow-xs cursor-help"
+            title="2-Hour Rolling Cycle: Predictions recalculate and update every 2 hours with new radar & satellite feeds."
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-indigo-600" />
+            <span>CYCLE: 2H</span>
+            <span className="bg-indigo-600 text-white px-1.5 py-0.5 rounded text-[10px] font-mono">{cycleTimeRemaining}</span>
+          </div>
+        </div>
+
+        {/* Quick Regional Presets (Hidden on small screens) */}
+        <div className="hidden 2xl:flex items-center gap-1.5 font-mono text-[11px]">
           {PRESET_LOCATIONS.map((preset) => {
-            const isSelected = selectedLocation.name?.toLowerCase().includes(preset.toLowerCase());
+            const isSelected = selectedLocation.name?.toLowerCase().includes(preset.toLowerCase()) || 
+              (preset === 'Pan-India' && selectedLocation.name?.toLowerCase().includes('pan-india'));
             return (
               <button
                 key={preset}
                 onClick={() => onSelectPreset(preset)}
                 className={`px-2.5 py-1 rounded-lg border transition-all ${
                   isSelected
-                    ? 'bg-rose-50 text-rose-700 border-rose-300 font-bold'
+                    ? 'bg-rose-50 text-rose-700 border-rose-300 font-bold shadow-xs'
                     : 'bg-slate-100 text-slate-600 border-transparent hover:bg-slate-200 hover:text-slate-900'
                 }`}
               >
-                {preset}
+                {preset === 'Pan-India' ? '🇮🇳 Pan-India' : preset}
               </button>
             );
           })}

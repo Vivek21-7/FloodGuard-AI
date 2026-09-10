@@ -168,6 +168,9 @@ export interface PredictResponse {
   river_forecast?: RiverForecastItem[];
   timeline?: TimelineItem[];
   max_probability_next_3h?: number;
+  forecast_lead_hours?: number;
+  cycle_interval_hours?: number;
+  cycle_expires_at?: string;
 }
 
 export interface ForecastResponse {

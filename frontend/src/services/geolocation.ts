@@ -6,8 +6,8 @@ export interface GeoPosition {
 export const getCurrentPosition = (): Promise<GeoPosition> => {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      // Default to Kullu coordinates if geolocation unsupported
-      resolve({ latitude: 31.9579, longitude: 77.1095 });
+      // Default to Pan-India center coordinates if geolocation unsupported
+      resolve({ latitude: 22.9734, longitude: 78.6569 });
       return;
     }
 
@@ -19,9 +19,9 @@ export const getCurrentPosition = (): Promise<GeoPosition> => {
         });
       },
       (err) => {
-        console.warn('Browser geolocation denied or unavailable, using Kullu Himachal default:', err.message);
-        // Fallback to Kullu default
-        resolve({ latitude: 31.9579, longitude: 77.1095 });
+        console.warn('Browser geolocation denied or unavailable, using Pan-India national default:', err.message);
+        // Fallback to Pan-India center default
+        resolve({ latitude: 22.9734, longitude: 78.6569 });
       },
       { timeout: 8000, enableHighAccuracy: true }
     );

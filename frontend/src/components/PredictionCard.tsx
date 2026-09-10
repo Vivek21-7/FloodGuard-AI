@@ -113,12 +113,25 @@ export const PredictionCard: React.FC<PredictionCardProps> = ({
       </div>
 
       {/* Physics Formulation Badge */}
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 mb-4 text-[11px] font-mono flex items-center justify-between text-slate-700">
+      <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 mb-3 text-[11px] font-mono flex items-center justify-between text-slate-700">
         <span className="text-slate-400 font-bold">HYDROLOGICAL INDEX:</span>
         <span className="text-indigo-700 font-bold">
           Q_peak = C · I_6h · (SoilMoist_sat) · sin(Slope)
         </span>
-        <span className="text-slate-400 hidden sm:inline font-semibold">[CWC-HYD-CAL]</span>
+      </div>
+
+      {/* 3-Hour Predictive Horizon & 2-Hour Refresh Cadence Banner */}
+      <div className="bg-indigo-50/70 border border-indigo-200 rounded-xl p-2.5 mb-4 text-[11px] font-mono flex flex-wrap items-center justify-between gap-2 text-indigo-950">
+        <div className="flex items-center gap-1.5 font-bold">
+          <Clock className="w-3.5 h-3.5 text-rose-600" />
+          <span>3-HOUR PREDICTION HORIZON:</span>
+          <span className="text-slate-700 font-normal">Early warning calculated 3 hours ahead</span>
+        </div>
+        <div className="flex items-center gap-1.5 text-indigo-700 font-bold">
+          <Activity className="w-3.5 h-3.5 text-indigo-600" />
+          <span>2-HOUR ROLLING CYCLE:</span>
+          <span className="text-slate-600 font-normal">Recalculates every 2 hours</span>
+        </div>
       </div>
 
       {/* Main Prediction & Gauge Row */}

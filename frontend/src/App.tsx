@@ -29,17 +29,19 @@ import {
 import { AlertTriangle } from 'lucide-react';
 
 const DEMO_PRESET_COORDINATES: Record<string, { lat: number; lon: number; name: string }> = {
+  'Pan-India': { lat: 22.9734, lon: 78.6569, name: 'Pan-India (National Live Overview)' },
   Wayanad: { lat: 11.5510, lon: 76.1260, name: 'Wayanad (Chooralmala), Kerala' },
-  Kullu: { lat: 31.9579, lon: 77.1095, name: 'Kullu, Himachal Pradesh' },
-  Kedarnath: { lat: 30.7346, lon: 79.0669, name: 'Kedarnath, Uttarakhand' },
+  Assam: { lat: 26.1445, lon: 91.7362, name: 'Guwahati (Brahmaputra Basin), Assam' },
+  Chiplun: { lat: 17.5323, lon: 73.5186, name: 'Chiplun (Vashishti Basin), Maharashtra' },
+  Patna: { lat: 25.6093, lon: 85.1235, name: 'Patna (Ganga Basin), Bihar' },
+  Delhi: { lat: 28.7041, lon: 77.1025, name: 'Delhi NCR (Yamuna Floodplain)' },
+  Kullu: { lat: 31.9579, lon: 77.1095, name: 'Kullu (Upper Beas), Himachal Pradesh' },
+  Mandi: { lat: 31.7087, lon: 76.9320, name: 'Mandi (Suketi Gorge), Himachal Pradesh' },
+  Kedarnath: { lat: 30.7346, lon: 79.0669, name: 'Kedarnath (Mandakini Valley), Uttarakhand' },
+  Dhemaji: { lat: 27.4833, lon: 94.5833, name: 'Dhemaji (Subansiri Floodway), Assam' },
   Cherrapunji: { lat: 25.2702, lon: 91.7323, name: 'Cherrapunji (Sohra), Meghalaya' },
-  Chungthang: { lat: 27.6039, lon: 88.6464, name: 'Chungthang, Sikkim' },
-  Chiplun: { lat: 17.5323, lon: 73.5186, name: 'Chiplun, Maharashtra' },
-  Dhemaji: { lat: 27.4833, lon: 94.5833, name: 'Dhemaji, Assam' },
-  Mandi: { lat: 31.7087, lon: 76.9320, name: 'Mandi, Himachal Pradesh' },
-  Shimla: { lat: 31.1048, lon: 77.1734, name: 'Shimla, Himachal Pradesh' },
-  Srinagar: { lat: 34.0837, lon: 74.7973, name: 'Srinagar, Jammu & Kashmir' },
-  Munnar: { lat: 10.0889, lon: 77.0595, name: 'Munnar, Kerala' },
+  Srinagar: { lat: 34.0837, lon: 74.7973, name: 'Srinagar (Jhelum Basin), J&K' },
+  Munnar: { lat: 10.0889, lon: 77.0595, name: 'Munnar (Periyar Catchment), Kerala' },
 };
 
 export const App: React.FC = () => {
@@ -50,9 +52,9 @@ export const App: React.FC = () => {
   const [demoControls, setDemoControls] = useState<DemoControlsState>(() => storage.getDemoControls());
 
   const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number; name?: string }>({
-    latitude: 31.9579,
-    longitude: 77.1095,
-    name: 'Kullu, Himachal Pradesh',
+    latitude: 22.9734,
+    longitude: 78.6569,
+    name: 'Pan-India (National Live Overview)',
   });
 
   const [envData, setEnvData] = useState<EnvironmentResponse | null>(null);
